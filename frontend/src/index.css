@@ -1,0 +1,12 @@
+@import "tailwindcss";
+@import "flowbite";
+
+@theme {
+    --font-montagu: "Montagu Slab", serif;
+
+    --color-background: oklch(98.05% 0.0108 234.81);
+    --color-light-blue: oklch(66.04% 0.0828 237.38);
+    --color-dark-blue: oklch(37.26% 0.1008 249.97);
+    --color-medium-blue: oklch(37.26% 0.1008 249.97);
+    --color-btn: oklch(81.66% 0.1047 238.04);
+}
