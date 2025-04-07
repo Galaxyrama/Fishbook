@@ -5,6 +5,16 @@ import { Tooltip } from 'flowbite'
 const Navbar = () => {
   const navigate = useNavigate();
 
+  //Makes it so that the tooltip is consistent
+  useEffect(() => {
+    const $targetE1 = document.getElementById('tooltip-logout');
+    const $triggerE1 = document.querySelector('[data-tooltip-target="tooltip-logout"]');
+
+    if($targetE1 && $triggerE1) {
+      new Tooltip($targetE1, $triggerE1);
+    }
+  }, []);
+
   const handleLogout = async() => {
     console.log("Button has been clicked");
 
@@ -36,10 +46,15 @@ const Navbar = () => {
           data-tooltip-target='tooltip-logout'/>
 
           {/* Tooltip */}
-          <div 
+          <div
             id="tooltip-logout" 
             role="tooltip" 
-            className="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-btn bg-white rounded-lg shadow-sm opacity-0 transition-opacity duration-300">
+            className="absolute z-10 invisible 
+                       inline-block px-3 py-2 text-sm 
+                       font-medium text-btn 
+                       bg-white rounded-lg shadow-sm 
+                       opacity-0 transition-opacity 
+                       duration-300 tooltip">
             Click to Logout
             <div className="tooltip-arrow" data-popper-arrow></div>
           </div>
