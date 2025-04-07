@@ -40,9 +40,9 @@ const Navbar = () => {
         <img 
           src='/images/logout.png' 
           onClick={handleLogout} 
-          className='bg-white w-10 h-10 ml-auto mr-8 rounded-3xl p-1
+          className='bg-white w-10 h-10 ml-auto sm:mr-8 rounded-3xl p-1
                       cursor-pointer pointer-events-auto
-                      hover:bg-gray-100'
+                      hover:bg-gray-100 mr-4'
           data-tooltip-target='tooltip-logout'/>
 
           {/* Tooltip */}
