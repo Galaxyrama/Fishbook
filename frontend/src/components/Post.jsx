@@ -27,19 +27,23 @@ const Post = ( { User, Img, DateUpload, ProfilePic } ) => {
                 <p className='pb-2 text-sm text-gray-500'>{formattedDate}</p>
               
               <div>
+                {/* Text Post */}
                 <p className='text-justify pb-3 cursor-pointer'>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem, eaque maxime. Ex, 
                   earum vitae, blanditiis perferendis voluptate eaque dolore porro magni facilis 
                   consequuntur totam omnis odio perspiciatis recusandae mollitia quo?</p>
-                {Img && <img src={Img} alt="" className='pb-3'/>}
+                  {/* Image Post */}
+                {Img && <img src={Img} alt="" className='pb-3 w-full'/>}
 
                 <hr className='pt-3'/>
 
                 <div className='flex justify-between sm:px-20'>
                   <div className='flex select-none cursor-pointer'>
+                  {/* Comments */}
                     <img src="/images/comment.png" alt="" className='w-6 h-6 mr-1'/>
-                    <p># of comments</p>
+                    <p># of comments</p> 
                   </div>
                   <div className='flex select-none cursor-pointer'>
+                    {/* Likes */}
                     <img src="/images/heart.png" alt="" className='w-6 h-6 mr-1'/>
                     <p># of likes</p>
                   </div>

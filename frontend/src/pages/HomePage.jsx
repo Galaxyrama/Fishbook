@@ -53,7 +53,7 @@ const HomePage = () => {
         </div>
 
         <Post User="test" Img="images/post_sample.jpg" DateUpload={Date.now()} ProfilePic="images/fishBackground.jpg"/>
-        <Post User={user} Img="images/fishBackground.jpg" DateUpload={Date.now()} ProfilePic="images/fishBackground.jpg"/>
+        <Post User={user} Img="images/Towa.jpg" DateUpload={Date.now()} ProfilePic="images/fishBackground.jpg"/>
       </div>
     }
 
