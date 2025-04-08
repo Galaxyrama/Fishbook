@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect} from 'react'
 import Navbar from '../components/Navbar'
 import { useParams } from 'react-router-dom';
 
-const AccountSetupPage = () => {
+
+const EditUserProfilePage = () => {
   const [email, setEmail] = useState("");
   const [currentUsername, setUsername] = useState("");
   const [description, setDescription] = useState("");
@@ -11,11 +12,6 @@ const AccountSetupPage = () => {
   const [currentLocation, setCurrentLocation] = useState("");
 
   const { username } = useParams();
-  const placeholderValue = `Hello everyone! I’m ${currentUsername}, here to fish with you all!`;
-
-  useEffect(() => {   
-    setUsername(username);
-  }, [])
 
   const handleForm = () => {
 
@@ -26,7 +22,7 @@ const AccountSetupPage = () => {
       <Navbar />
       <div className='block sm:flex'>
         <div className='mt-5 ml-5 w-sm'>
-          <h1 className='text-center text-3xl text-dark-blue font-semibold'>Account Setup</h1>
+          <h1 className='text-center text-3xl text-dark-blue font-semibold'>Edit Profile</h1>
           <div className='flex flex-col items-center mt-4'>
             <div className='w-40 flex-shrink-0'>
               <img src="/images/avatar-placeholder.png" className='h-40 w-40 rounded-full justify-center' />
@@ -63,7 +59,7 @@ const AccountSetupPage = () => {
               {/* Description */}
               <label htmlFor="description" className='inline-block mb-2 mt-5 text-medium-blue'>Profile Description</label>
               <div className='relative'>
-                <textarea type="email" placeholder={placeholderValue} name='description' id='description'
+                <textarea type="email" placeholder='Hello everyone! I’m {user}, here to fish with you all!' name='description' id='description'
                 className='rounded-xl border-1 py-4 w-full' required
                 onChange={(e) => setDescription(e.target.value)}
                 value={description}/>
@@ -114,4 +110,4 @@ const AccountSetupPage = () => {
   )
 }
 
-export default AccountSetupPage
+export default EditUserProfilePage

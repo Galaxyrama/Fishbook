@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router-dom"
 import HomePage from "./pages/HomePage"
 import LoginPage from "./pages/LoginPage"
 import UserPage from "./pages/UserPage"
+import EditUserProfilePage from "./pages/EditUserProfilePage"
 import RegistrationPage from "./pages/RegistrationPage"
 import PageNotFound from "./pages/PageNotFound"
 import ForgotPasswordPage from "./pages/ForgotPasswordPage"
@@ -13,7 +14,8 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<HomePage/>} />
-      <Route path="/setup" element={<AccountSetupPage />} />
+      <Route path="/setup/:username" element={<AccountSetupPage />} />
+      <Route path="/edit/:username" element={<EditUserProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
       <Route path="/profile/:username" element={<UserPage />} />
