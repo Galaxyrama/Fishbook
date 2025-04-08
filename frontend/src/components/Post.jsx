@@ -13,7 +13,7 @@ const Post = ( { User, Img, DateUpload, ProfilePic } ) => {
   return (
     <div className='font-montagu'>
         <div className='flex justify-center w-full pb-5'>
-        <div className='w-full max-w-3xl pb-2 '>
+        <div className='w-full max-w-3xl pb-2'>
           <div className='flex gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4 '>
             <div className='w-12 flex-shrink-0'>
                 <Link to={`/profile/${User}`}>
