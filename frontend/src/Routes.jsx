@@ -9,6 +9,7 @@ import RegistrationPage from "./pages/RegistrationPage"
 import PageNotFound from "./pages/PageNotFound"
 import ForgotPasswordPage from "./pages/ForgotPasswordPage"
 import AccountSetupPage from "./pages/AccountSetupPage"
+import PostPage from "./pages/PostPage"
 
 const AppRoutes = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes = () => {
       <Route path="/" element={<HomePage/>} />
       <Route path="/setup/:username" element={<AccountSetupPage />} />
       <Route path="/edit/:username" element={<EditUserProfilePage />} />
+      <Route path="/:username/status/:id" element={<PostPage />}></Route>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegistrationPage />} />
       <Route path="/profile/:username" element={<UserPage />} />

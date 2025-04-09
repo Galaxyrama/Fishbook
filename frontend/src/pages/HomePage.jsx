@@ -40,6 +40,7 @@ const HomePage = () => {
       }
     }
 
+    document.documentElement.scrollTop = 0;
     getUser();
   }, [])
 
@@ -49,7 +50,7 @@ const HomePage = () => {
 
     {user && 
       <div>
-        <div className='flex justify-center w-full pb-5'>
+        <div className='flex justify-center w-full pb-5 pt-20 px-2'>
           <div className='w-full max-w-3xl'>
             <div className='flex items-center gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4'>
               <div className='w-12 flex-shrink-0'>
@@ -70,25 +71,25 @@ const HomePage = () => {
         {/* Modal */}
         {isOpen && 
           <div className='flex justify-center px-3 py-40 fixed inset-0 bg-gray-500/50'>
-          <div className='max-w-sm w-full bg-white rounded-lg drop-shadow-xl h-85'>
-            {/* Header */}
-            <div className='w-full relative text-center justify-center py-2'>
+            <div className='max-w-sm w-full bg-white rounded-lg drop-shadow-xl h-85'>
+              {/* Header */}
+              <div className='w-full relative text-center justify-center py-2'>
               <h1 className='text-2xl'>Create Post</h1>
               <img src="/images/exit-btn.png"
                   onClick={closeModal}
                   className='w-7 h-7 absolute right-3 top-2.5
                               transform -translatee-y-1/2
                               pointer-events-auto cursor-pointer'/>
-            </div>
-            <hr className='py-1 border-[#ACACAC]'/>
+              </div>
+              <hr className='py-1 border-[#ACACAC]'/>
 
-            {/* Content */}
-            <div className='block px-3 py-1'>
-              <div className='flex items-center gap-2'>
-                <div className='w-12 flex-shrink-0'>
-                  <img src="/images/fishBackground.jpg" className='w-12 h-12 rounded-full' />
-                </div>
-                <p className='text-xl'>{user}</p>
+              {/* Content */}
+              <div className='block px-3 py-1'>
+                <div className='flex items-center gap-2'>
+                  <div className='w-12 flex-shrink-0'>
+                    <img src="/images/fishBackground.jpg" className='w-12 h-12 rounded-full' />
+                  </div>
+                  <p className='text-xl'>{user}</p>
               </div>
               <textarea
                 className='focus:outline-none focus:ring-0 border-0 w-full resize-none h-30 px-0' 

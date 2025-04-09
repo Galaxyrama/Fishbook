@@ -6,10 +6,14 @@ import Navbar from '../components/Navbar';
 const UserPage = () => {
   const { username } = useParams();
 
+  useEffect(() => {
+    document.documentElement.scrollTop = 0;
+  })
+
   return (
-    <div className=' bg-background min-h-screen font-montagu'>
+    <div className=' bg-background h-full font-montagu'>
       <Navbar />
-      <div className='flex w-full justify-center pt-4 sm:px-16'>
+      <div className='flex w-full justify-center pt-25 sm:px-16'>
         <div className='block w-full max-w-3xl justify-center'>
           <div className='block sm:flex w-full'>
             <div className='flex justify-center'>
@@ -18,18 +22,18 @@ const UserPage = () => {
               </div>
             </div>
             <div className='block w-full text-center sm:ml-5 px-3'>
-              <div className='sm:px-10 py-5 flex justify-evenly sm:gap-10'>
+              <div className='sm:px-10 py-5 flex justify-evenly text-xl sm:text-2xl sm:gap-10'>
                 <div className='block'>
-                  <p className='text-xl sm:text-2xl'>2</p>
-                  <p className='text-xl sm:text-2xl text-[#4B4B4B]'>Casts</p>
+                  <p>2</p>
+                  <p className='text-[#4B4B4B]'>Casts</p>
                 </div>
                 <div className='block'>
-                  <p className='text-xl sm:text-2xl'>100</p>
-                  <p className='text-xl sm:text-2xl text-[#4B4B4B]'>Hookers</p>
+                  <p>100</p>
+                  <p className='text-[#4B4B4B]'>Hookers</p>
                 </div>
                 <div className='block'>
-                  <p className='text-xl sm:text-2xl'>5</p>
-                  <p className='text-xl sm:text-2xl text-[#4B4B4B]'>Hooked</p>
+                  <p>5</p>
+                  <p className='text-[#4B4B4B]'>Hooked</p>
                 </div>
               </div>
               <button className='w-full rounded-xl py-3 bg-btn text-white

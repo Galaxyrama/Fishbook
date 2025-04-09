@@ -34,7 +34,7 @@ const Navbar = () => {
 
   return (
     <div className='font-montagu'>
-      <div className='w-full flex relative items-center text-center py-4 bg-btn mb-2'>
+      <div className='w-full flex fixed top-0 left-0 items-center text-center py-4 bg-btn z-50'>
         <Link to="/" className='absolute left-1/2 transform -translate-x-1/2 text-white 
         text-4xl cursor-pointer'>Fishbook</Link>
         <img 
