@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
@@ -7,8 +7,10 @@ const PostPage = () => {
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${username}-${id}`;
   const tooltipLikeId = `tooltip-like-${username}-${id}`;
+  const textareaRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
+  const [comment, setComment] = useState("");
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(
@@ -41,6 +43,18 @@ const PostPage = () => {
     }
   }, []);
 
+  // dynamically changes the height of textarea
+  const handleCommentChange = (e) => {
+    const value = e.target.value;
+    setComment(value);
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
+
   return (
     <div className="font-montagu h-screen bg-background">
       <Navbar />
@@ -48,18 +62,25 @@ const PostPage = () => {
       <div>
         <div className="flex justify-center px-2 pt-20">
           <div className="block px-5 max-w-3xl bg-white rounded-xl drop-shadow-xl">
-            <div className="flex items-center py-3 gap-3">
-              <Link to={`/profile/${username}`}>
-                <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full"
-                />
-              </Link>
-              <Link to={`/profile/${username}`}>
-                <p className="text-xl font-semibold cursor-pointer inline-block max-w-max">
-                  {username}
-                </p>
-              </Link>
+            <div className="flex items-center justify-between py-3">
+              <div className="flex gap-3 items-center">
+                <Link to={`/profile/${username}`}>
+                  <img
+                    src="/images/fishBackground.jpg"
+                    className="w-12 h-12 rounded-full"
+                  />
+                </Link>
+                <Link to={`/profile/${username}`}>
+                  <p 
+                    className="text-xl font-semibold cursor-pointer 
+                               inline-block max-w-max hover:text-btn">
+                    {username}
+                  </p>
+                </Link>
+              </div>
+              <p className="text-2xl select-none cursor-pointer hover:text-btn">
+                •••
+              </p>
             </div>
             <p className="text-justify">
               Lorem, ipsum dolor sit amet consectetur adipisicing elit. Itaque
@@ -67,23 +88,19 @@ const PostPage = () => {
               voluptatum illum harum, deleniti impedit iure excepturi eius atque
               quibusdam repellat nam? Mollitia.
             </p>
-            <div className="flex text-gray-500 select-none py-5 text-[13px]">
+            <div className="flex text-gray-500 select-none py-3 text-[13px]">
               <p>Post Time</p>
               <p className="px-1">•</p>
               <p>Post Date</p>
             </div>
             <hr />
-            <div className="flex justify-evenly py-2">
+            <div className="flex justify-between mx-10 py-2">
               {/* Comments */}
               <div
                 className="flex select-none cursor-pointer"
                 data-tooltip-target={tooltipCommentId}
               >
-                <img
-                  src="/images/comment.png"
-                  alt=""
-                  className="w-6 h-6 mr-1"
-                />
+                <img src="/images/comment.png" className="w-6 h-6 mr-1" />
                 <p>590</p>
               </div>
               {/* Likes */}
@@ -104,20 +121,34 @@ const PostPage = () => {
               </div>
             </div>
             <hr />
-            <div className="flex">
-              <Link to={`/profile/${username}`}>
-                <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full inline-block"
-                />
-              </Link>
-              <input
-                type="text"
-                className="focus:ring-0 border-0"
+            <div className="flex py-3">
+              <div className="w-12 flex-shrink-0">
+                <Link to={`/profile/${username}`}>
+                  <img
+                    src="/images/fishBackground.jpg"
+                    className="w-12 h-12 rounded-full inline-block"
+                  />
+                </Link>
+              </div>
+              <textarea
+                ref={textareaRef}
+                className={`focus:ring-0 pt-4 border-0 w-full resize-none h-13`}
                 placeholder="Post your comment"
+                onChange={handleCommentChange}
+                value={comment}
+                rows={1}
               />
+              <div className="pt-2">
+                <button className="inline-block bg-btn h-10 text-white px-5 rounded-full cursor-pointer">
+                  Reply
+                </button>
+              </div>
             </div>
-            <CommentComponent />
+            
+            <CommentComponent User={"User2"} DateUpload={Date.now()}/>
+            <CommentComponent User={"User3"} DateUpload={Date.now()}/>
+
+            <hr className="pb-3"/>
           </div>
         </div>
       </div>

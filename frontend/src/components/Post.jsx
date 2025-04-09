@@ -50,7 +50,7 @@ const Post = ( { User, Img, DateUpload, ProfilePic } ) => {
             </div>
             <div className='text-left pr-2 max-w-3xl'>
                 <Link to={`/profile/${User}`}>
-                    <p className='text-xl font-semibold cursor-pointer inline-block max-w-max'>{User}</p>
+                    <p className='text-xl font-semibold cursor-pointer inline-block hover:text-btn'>{User}</p>
                 </Link>
                 <p className='pb-2 text-sm text-gray-500'>{formattedDate}</p>
               
