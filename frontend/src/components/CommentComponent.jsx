@@ -64,14 +64,14 @@ const CommentComponent = ({ User, Img, DateUpload, ProfilePic }) => {
             </p>
           </Link>
 
-          <div className="flex justify-around py-2">
+          <div className="flex justify-between mr-10 py-2">
             {/* Comments */}
             <div
               className="flex select-none cursor-pointer"
               data-tooltip-target={tooltipCommentId}
             >
               <img src="/images/comment.png" alt="" className="w-6 h-6 mr-1" />
-              <p>2</p>
+              <p>590</p>
             </div>
             {/* Likes */}
             <div

@@ -66,7 +66,7 @@ const Post = ( { User, Img, DateUpload, ProfilePic } ) => {
 
                 <hr className='pt-3'/>
 
-                <div className='flex justify-evenly'>
+                <div className='flex justify-evenly ml-13'>
                   {/* Comments */}
                   <div 
                     className='flex select-none cursor-pointer'
