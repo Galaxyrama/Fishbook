@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import Navbar from "../components/Navbar";
@@ -8,6 +8,8 @@ import { User } from "../../../backend/src/models/User";
 
 const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [comment, setComment] = useState("");
+  const textareaRef = useRef(null);
 
   const openModal = () => {
     setIsOpen(true);
@@ -20,7 +22,6 @@ const HomePage = () => {
 
   const [user, setUser] = useState("evergreenmostly");
 
-  const placeholderValue = `What's swimming through your mind, ${user}?`;
   useAuth();
 
   useEffect(() => {
@@ -43,6 +44,19 @@ const HomePage = () => {
     document.documentElement.scrollTop = 0;
     getUser();
   }, []);
+
+  // dynamically changes the height of textarea
+  const handlePostChange = (e) => {
+    const value = e.target.value;
+    setComment(value);
+
+    const textarea = textareaRef.current;
+    if (textarea) {
+      console.log(comment.length);
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  };
 
   return (
     <div className="bg-background font-montagu h-full">
@@ -77,18 +91,20 @@ const HomePage = () => {
             Img="images/post_sample.jpg"
             DateUpload={Date.now()}
             ProfilePic="images/fishBackground.jpg"
+            LikeAmount={200}
           />
           <Post
             User={user}
             Img="images/Towa.jpg"
             DateUpload={Date.now() + 100000000}
             ProfilePic="images/fishBackground.jpg"
+            LikeAmount={350}
           />
 
-          {/* Modal */}
+          {/* Modal for Create Post */}
           {isOpen && (
-            <div className="flex justify-center px-3 py-40 fixed inset-0 bg-gray-500/50">
-              <div className="max-w-sm w-full bg-white rounded-lg drop-shadow-xl h-85">
+            <div className="flex justify-center items-center px-3 pt-40 pb-8 fixed inset-0 bg-gray-500/50 overflow-y-auto">
+              <div className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-full">
                 {/* Header */}
                 <div className="w-full relative text-center justify-center py-2">
                   <h1 className="text-2xl">Create Post</h1>
@@ -114,8 +130,12 @@ const HomePage = () => {
                     <p className="text-xl">{user}</p>
                   </div>
                   <textarea
-                    className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-30 px-0"
-                    placeholder={placeholderValue}
+                    ref={textareaRef}
+                    className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
+                    placeholder={`What's swimming through your mind, ${user}?`}
+                    onChange={handlePostChange}
+                    rows={1}
+                    maxLength={1250}
                   />
                   <div className="flex border-2 border-gray-300 py-2 px-3 my-2 rounded-xl">
                     <p>Add to your Post</p>
