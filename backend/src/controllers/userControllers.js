@@ -8,7 +8,7 @@ export const logIn = async (req, res, next) => {
 
     if (!password || !email) {
       return res.status(400).json({
-        message: "Please provide the correct email address and password!",
+        message: "Please provide the correct email address and password",
       });
     }
 
@@ -17,7 +17,7 @@ export const logIn = async (req, res, next) => {
     if (!user) {
       return res
         .status(400)
-        .json({ message: "Email or Password is incorrect!" });
+        .json({ message: "Invalid credentials" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -68,11 +68,10 @@ export const signUp = async (req, res, next) => {
     res.status(201).json(newUser);
   } catch (error) {
     next(error);
-    console.log("test");
   }
 };
 
-export const getCurrentUserDetails = async (req, res, next) => {
+export const getCurrentUserDetails = async (req, res) => {
   const userId = req.session.userID;
 
   try {
@@ -82,22 +81,33 @@ export const getCurrentUserDetails = async (req, res, next) => {
       profile: user.profilePic,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ error: "Can't get user" });
   }
 };
 
-export const getUserDetails = async (req, res, next) => {
+export const getUserDetails = async (req, res) => {
   const { username } = req.params;
+  const id = req.session.userID;
 
   try {
+    let isMyProfile = false;
+
     const user = await User.findOne({ username }).exec();
+
+    if (id === user._id.toString()) {
+      isMyProfile = true;
+    }
+
     return res.status(200).json({
       username: user.username,
       gender: user.gender,
       currentLocation: user.currentLocation,
       birthDate: user.birthDate,
       description: user.description,
-      profile: user.profilePic
+      profile: user.profilePic,
+      isMyProfile,
+      followingCount: user.followingCount,
+      followerCount: user.followerCount
     });
   } catch (e) {
     res.status(500).json({ error: "Can't get user" });

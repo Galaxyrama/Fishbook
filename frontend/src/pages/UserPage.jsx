@@ -3,6 +3,7 @@ import Post from "../components/Post";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useAuth from "../hook/useAuth";
+import useAuthStore from "../stores/useAuthStore";
 
 const UserPage = () => {
   const { username } = useParams();
@@ -10,6 +11,8 @@ const UserPage = () => {
 
   const [profilePic, setProfilePic] = useState("");
   const [description, setDescription] = useState("");
+  const [btnText, setBtnText] = useState("");
+  const [myProfile, setMyProfile] = useState(false);
 
   const [casts, setCasts] = useState(1);
   const [hookers, setHookers] = useState(0);
@@ -18,6 +21,8 @@ const UserPage = () => {
   useAuth();
 
   useEffect(() => {
+    const { userId } = useAuthStore.getState();
+
     const getUser = async () => {
       try {
         const response = await fetch(
@@ -36,6 +41,11 @@ const UserPage = () => {
 
         setProfilePic(data.profile.url);
         setDescription(data.description);
+        setMyProfile(data.isMyProfile);
+        setHookers(data.followerCount);
+        setHooked(data.followingCount);
+
+        setBtnText((myProfile ? "Edit Account" : "Get Hooked"));
       } catch (e) {
         console.error(e);
       }
@@ -45,62 +55,60 @@ const UserPage = () => {
     getUser();
   });
 
+  const handleButton = () => {
+    if(myProfile) {
+      navigate(`/edit/${username}`);
+      return;
+    }
+  };
+
   return (
-    <div className=" bg-background h-full font-montagu">
+    <div className=" bg-background h-screen font-montagu">
       <Navbar />
-      <div className="flex w-full justify-center pt-25 sm:px-16">
-        <div className="block w-full max-w-3xl justify-center">
-          <div className="block sm:flex w-full">
-            <div className="flex justify-center">
-              <div className="w-40 flex-shrink-0">
-                <img
-                  src={
-                    profilePic ? profilePic : "/images/avatar-placeholder.png"
-                  }
-                  className="w-40 h-40 rounded-full"
-                />
-              </div>
-            </div>
-            <div className="block w-full text-center sm:ml-5 px-3">
-              <div className="sm:px-10 py-5 flex justify-evenly text-xl sm:text-2xl sm:gap-10">
-                <div className="block">
-                  <p>{casts}</p>
-                  <p className="text-[#4B4B4B]">Casts</p>
-                </div>
-                <div className="block">
-                  <p>{hookers}</p>
-                  <p className="text-[#4B4B4B]">Hookers</p>
-                </div>
-                <div className="block">
-                  <p>{hooked}</p>
-                  <p className="text-[#4B4B4B]">Hooked</p>
+      {profilePic && description && (
+        <div className="flex w-full justify-center pt-25 sm:px-16">
+          <div className="block w-full max-w-3xl justify-center">
+            <div className="block sm:flex w-full">
+              <div className="flex justify-center">
+                <div className="w-40 flex-shrink-0">
+                  <img src={profilePic} className="w-40 h-40 rounded-full" />
                 </div>
               </div>
-              <button
-                className="w-full rounded-xl py-3 bg-btn text-white
+              <div className="block w-full text-center sm:ml-5 px-3">
+                <div className="sm:px-10 py-5 flex justify-evenly text-xl sm:text-2xl sm:gap-10">
+                  <div className="block">
+                    <p>{casts}</p>
+                    <p className="text-[#4B4B4B]">Casts</p>
+                  </div>
+                  <div className="block">
+                    <p>{hookers}</p>
+                    <p className="text-[#4B4B4B]">Hookers</p>
+                  </div>
+                  <div className="block">
+                    <p>{hooked}</p>
+                    <p className="text-[#4B4B4B]">Hooked</p>
+                  </div>
+                </div>
+                <button
+                  className="w-full rounded-xl py-3 bg-btn text-white
                                  cursor-pointer"
-              >
-                Get Hooked
-              </button>
+                  onClick={handleButton}
+                >
+                  {btnText}
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="text-center mt-3 sm:mt-5">
-            <h1 className="text-[40px] sm:text-left">{username}</h1>
-            <p className="text-[18px] text-[#4B4B4B] sm:text-left">
-              {description}
-            </p>
+            <div className="text-center mt-3 sm:mt-5">
+              <h1 className="text-[40px] sm:text-left">{username}</h1>
+              <p className="text-[18px] text-[#4B4B4B] sm:text-left">
+                {description}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <hr className="my-5 border-gray-600" />
-
-      <Post
-        User={username}
-        Img="/images/Towa.jpg"
-        DateUpload={Date.now()}
-        ProfilePic="/images/fishBackground.jpg"
-      />
     </div>
   );
 };

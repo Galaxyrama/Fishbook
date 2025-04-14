@@ -9,25 +9,28 @@ cloudinary.config({
 });
 
 // Upload the Profile
-const uploadProfile = async(path, folder = "Profile") => {
-    try {
-        const data = await cloudinary.uploader.upload(path, { folder: folder });
-        return { url: data.secure_url, publicId: data.public_id };
-    } catch(err) {
-        console.log(err);
-        throw err;
-    }
+const uploadProfile = async (path, folder = "Profile") => {
+  try {
+    const data = await cloudinary.uploader.upload(path, { folder: folder });
+    return { url: data.secure_url, publicId: data.public_id };
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 
-//Uploads the Post Image
-const uploadPostImage = async(path, folder = "Fishbook") => {
-    try {
-        const data = await cloudinary.uploader.upload(path, { folder: folder });
-        return { url: data.secure_url, publicId: data.public_id };
-    } catch(err) {
-        console.log(err);
-        throw err;
-    }
+//Uploads the Post File
+const uploadPostFile = async (path, folder = "Fishbook") => {
+  try {
+    const data = await cloudinary.uploader.upload(path, {
+      folder: folder,
+      resource_type: "auto",
+    });
+    return { url: data.secure_url, publicId: data.public_id };
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
 };
 
-export { uploadProfile, uploadPostImage }
+export { uploadProfile, uploadPostFile };

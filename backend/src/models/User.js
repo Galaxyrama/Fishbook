@@ -11,8 +11,10 @@ const userSchema = new mongoose.Schema(
     birthDate: { type: Date, default: null },
     profilePic: {
       url: { type: String, default: null },
-      publicId: { type: String, default: null }
+      publicId: { type: String, default: null },
     },
+    followerCount: { type: Number, default: 0 },
+    followingCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

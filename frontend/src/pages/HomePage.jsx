@@ -6,13 +6,18 @@ import Post from "../components/Post";
 
 const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [comment, setComment] = useState("");
   const textareaRef = useRef(null);
 
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("NaN");
   const [profilePicture, setProfilePicture] = useState("");
+
+  const [postTitle, setPostTitle] = useState("");
+  const [addPost, setAddPost] = useState("");
+  const [base64Image, setBase64Image] = useState("");
+  const [isImage, setIsImage] = useState(false);
+  const [isVideo, setIsVideo] = useState(false);
 
   const openModal = () => {
     setIsOpen(true);
@@ -29,7 +34,7 @@ const HomePage = () => {
     const getUser = async () => {
       try {
         const response = await fetch("http://localhost:5175/api/user/", {
-          credentials: "include"
+          credentials: "include",
         });
 
         const data = await response.json();
@@ -55,14 +60,91 @@ const HomePage = () => {
   // dynamically changes the height of textarea
   const handlePostChange = (e) => {
     const value = e.target.value;
-    setComment(value);
+    setPostTitle(value);
 
     const textarea = textareaRef.current;
     if (textarea) {
-      console.log(comment.length);
+      console.log(postTitle.length);
       textarea.style.height = "auto";
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
+  };
+
+  //converts the blob url into a base64 string
+  const convertBlobToBase64 = async (blobUrl) => {
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const handlePostUpload = async () => {
+    if (!addPost && !postTitle) {
+      return;
+    }
+
+    if (addPost && isImage) {
+      setBase64Image(await convertBlobToBase64(addPost));
+    }
+
+    const response = await fetch("http://localhost:5175/api/post/upload", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postTitle,
+        postImage: base64Image,
+      }),
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    closeModal();
+    setAddPost("");
+    setPostTitle("");
+  };
+
+  const handleAddPost = (e) => {
+    const addFile = e.target.files[0];
+    const maxSizeInMB = 50;
+    const maxSizeInByte = maxSizeInMB * 1024 * 1024;
+
+    if (!addFile) return;
+
+    //sets the largest file size to 50mb
+    if(addFile.size > maxSizeInByte) {
+      alert("File is too large. Maximum allowed size is 50mb");
+      return;
+    }
+
+    const mimeType = addFile.type;
+
+    if (mimeType.startsWith("image/")) {
+      setIsImage(true);
+      setIsVideo(false);
+    } else if (mimeType.startsWith("video/")) {
+      setIsImage(false);
+      setIsVideo(true);
+    } else {
+      console.log("Unsupported file type");
+    }
+
+    const url = URL.createObjectURL(addFile);
+    setAddPost(url);
+  };
+
+  const handlePostRemove = () => {
+    setIsImage(false);
+    setIsVideo(false);
+    setAddPost("");
   };
 
   return (
@@ -104,7 +186,7 @@ const HomePage = () => {
           {/* Modal for Create Post */}
           {isOpen && (
             <div className="flex justify-center items-center px-3 pt-40 pb-8 fixed inset-0 bg-gray-500/50 overflow-y-auto">
-              <div className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-full">
+              <div className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col">
                 {/* Header */}
                 <div className="w-full relative text-center justify-center py-2">
                   <h1 className="text-2xl">Create Post</h1>
@@ -129,36 +211,103 @@ const HomePage = () => {
                     </div>
                     <p className="text-xl">{username}</p>
                   </div>
-                  <textarea
-                    ref={textareaRef}
-                    className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
-                    placeholder={`What's swimming through your mind, ${username}?`}
-                    onChange={handlePostChange}
-                    rows={1}
-                    maxLength={1250}
-                  />
+                  <div className="block px-3 py-1 overflow-y-auto max-h-[55vh]">
+                    <textarea
+                      ref={textareaRef}
+                      className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
+                      placeholder={`What's swimming through your mind, ${username}?`}
+                      onChange={handlePostChange}
+                      rows={1}
+                      value={postTitle}
+                    />
+                    {addPost && isImage && (
+                      <div className="relative">
+                        <img
+                          src={addPost}
+                          className="h-full w-full flex justify-center"
+                        />
+                        <img
+                          className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
+                          src="/images/exit-btn.png"
+                          onClick={handlePostRemove}
+                        ></img>
+                      </div>
+                    )}
+                    {addPost && isVideo && (
+                      <div className="relative">
+                        <video
+                          src={addPost}
+                          className="h-full flex justify-center"
+                        />
+                        <img
+                          className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
+                          src="/images/exit-btn.png"
+                          onClick={handlePostRemove}
+                        ></img>
+                      </div>
+                    )}
+                  </div>
                   <div
                     className="flex border-2 border-gray-300 items-center 
                   justify-between py-2 px-3 my-2 rounded-xl"
                   >
                     <p>Add to your Post</p>
+
+                    {/* Image Upload */}
                     <div className="flex gap-3">
-                      <img
-                        src="/images/photo.png"
-                        className="w-10 h-10 cursor-pointer"
+                      <label htmlFor="imgUpload" className="cursor-pointer">
+                        <img
+                          src="/images/photo.png"
+                          className="w-10 h-10 cursor-pointer"
+                        />
+                      </label>
+                      <input
+                        type="file"
+                        className="text-white py-2 px-5 
+                            bg-btn rounded-xl cursor-pointer
+                            text-[0px] hidden"
+                        id="imgUpload"
+                        accept="image/png, image/jpeg"
+                        onChange={handleAddPost}
                       />
-                      <img
-                        src="/images/gif.png"
-                        className="w-10 h-10 cursor-pointer"
+
+                      {/* Gif upload */}
+                      <label htmlFor="gifUpload" className="cursor-pointer">
+                        <img
+                          src="/images/gif.png"
+                          className="w-10 h-10 cursor-pointer"
+                        />
+                      </label>
+                      <input
+                        type="file"
+                        className="text-white py-2 px-5 
+                            bg-btn rounded-xl cursor-pointer
+                            text-[0px] hidden"
+                        id="gifUpload"
+                        accept="image/gif"
+                        onChange={handleAddPost}
                       />
-                      <img
-                        src="/images/video.png"
-                        className="w-10 h-10 cursor-pointer"
+
+                      {/* Video upload */}
+                      <label htmlFor="videoUpload">
+                        <img
+                          src="/images/video.png"
+                          className="w-10 h-10 cursor-pointer h"
+                        />
+                      </label>
+                      <input
+                        type="file"
+                        className="text-white py-2 px-5 
+                            bg-btn rounded-xl cursor-pointer
+                            text-[0px] hidden"
+                        id="videoUpload"
+                        accept="video/mp4"
+                        onChange={handleAddPost}
                       />
                     </div>
                   </div>
                   <button
-                    onClick={closeModal}
+                    onClick={handlePostUpload}
                     className="cursor-pointer w-full bg-btn text-white rounded-xl
                                 py-2 mb-2"
                   >
