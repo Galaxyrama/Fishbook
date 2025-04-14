@@ -1,0 +1,33 @@
+import { v2 as cloudinary } from "cloudinary";
+import "dotenv/config";
+
+// Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET, // Click 'View API Keys' above to copy your API secret
+});
+
+// Upload the Profile
+const uploadProfile = async(path, folder = "Profile") => {
+    try {
+        const data = await cloudinary.uploader.upload(path, { folder: folder });
+        return { url: data.secure_url, publicId: data.public_id };
+    } catch(err) {
+        console.log(err);
+        throw err;
+    }
+};
+
+//Uploads the Post Image
+const uploadPostImage = async(path, folder = "Fishbook") => {
+    try {
+        const data = await cloudinary.uploader.upload(path, { folder: folder });
+        return { url: data.secure_url, publicId: data.public_id };
+    } catch(err) {
+        console.log(err);
+        throw err;
+    }
+};
+
+export { uploadProfile, uploadPostImage }

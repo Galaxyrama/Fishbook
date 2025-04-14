@@ -19,11 +19,15 @@ const RegistrationPage = () => {
     setError("");
 
     if (confirmPassword === password) {
-      await fetch("http://localhost:5175/api/users/register", {
+      const response = await fetch("http://localhost:5175/api/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password }),
       });
+
+      if(response.ok) {
+        navigate("/login");
+      }
     } else {
       setError("Passwords do not match!");
     }
@@ -40,7 +44,7 @@ const RegistrationPage = () => {
           navigate("/");
         }
       } catch (error) {
-        console.error("Session check failed", error);
+        console.log("Session check failed", error);
       }
     };
 

@@ -3,10 +3,10 @@ import mongoose from "mongoose"
 import "dotenv/config";
 
 const PORT = process.env.PORT;
-const DB_URI= process.env.MONGO_CONNECTION_STRING;
+const URI = process.env.MONGO_CONNECTION_STRING
 
 mongoose
-    .connect(DB_URI)
+    .connect(URI)
     .then(() => {
         console.log("MongoDB connected");
         app.listen(PORT, () => {

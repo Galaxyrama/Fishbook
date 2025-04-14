@@ -9,7 +9,6 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
 
   const [likeAmount, setLikeAmount] = useState(LikeAmount);
   const [hasLiked, setHasLiked] = useState(false);
-  const [heartImg, setHeartImg] = useState("/images/heart.png");
   const [tooltipLike, setTooltipLike] = useState("Like");
 
   const [isOpen, setIsOpen] = useState(false);
@@ -28,18 +27,16 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
   };
 
   const handleLike = () => {
-    if(!hasLiked) { 
-      setLikeAmount(likeAmount + 1); 
+    if (!hasLiked) {
+      setLikeAmount(likeAmount + 1);
       setHasLiked(true);
-      setHeartImg("/images/heart-liked.png");
       setTooltipLike("Unlike");
     } else {
-      setLikeAmount(likeAmount - 1); 
+      setLikeAmount(likeAmount - 1);
       setHasLiked(false);
-      setHeartImg("/images/heart.png");
       setTooltipLike("Like");
     }
-  }
+  };
 
   useEffect(() => {
     const $targetE1 = document.getElementById(tooltipCommentId);
@@ -120,10 +117,16 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
                     data-tooltip-target={tooltipLikeId}
                     onClick={handleLike}
                   >
-                    <img
-                      src={heartImg}
-                      className="w-6 h-6 mr-1"
-                    />
+                    <div className="w-6 h-6 flex items-center justify-center mr-1">
+                      <img
+                        src={
+                          hasLiked
+                            ? "/images/heart-liked.png"
+                            : "/images/heart.png"
+                        }
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
                     <p>{likeAmount}</p>
                   </div>
                   {/* Share Link */}
