@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Tooltip } from 'flowbite' 
+import { Tooltip } from 'flowbite'
+import useAuthStore from '../stores/useAuthStore'
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async() => {
-    console.log("Button has been clicked");
+    const { clearUserId } = useAuthStore.getState();
 
     try {
       const response = await fetch("http://localhost:5175/api/user/logout", {
@@ -24,6 +25,7 @@ const Navbar = () => {
       });
 
       if(response.ok) {
+        clearUserId();
         navigate("/login");
       }
 

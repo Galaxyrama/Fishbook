@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
+import useAuthStore from "../stores/useAuthStore";
 
 const PostPage = () => {
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${username}-${id}`;
   const tooltipLikeId = `tooltip-like-${username}-${id}`;
   const textareaRef = useRef(null);
+
+  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState("");
@@ -22,6 +25,12 @@ const PostPage = () => {
   };
 
   useEffect(() => {
+    const { userId } = useAuthStore.getState();
+
+    if (!userId) {
+      navigate("/login");
+    }
+
     document.documentElement.scrollTop = 0;
 
     const $targetE1 = document.getElementById(tooltipCommentId);

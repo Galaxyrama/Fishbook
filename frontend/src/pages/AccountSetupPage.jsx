@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../utils/cropImage.js";
+import useAuth from "../hook/useAuth.js";
 
 const AccountSetupPage = () => {
   const [currentUsername, setUsername] = useState("");
@@ -25,6 +26,8 @@ const AccountSetupPage = () => {
 
   const { username } = useParams();
   const navigate = useNavigate();
+
+  useAuth();
 
   useEffect(() => {
     const getCountries = async () => {
@@ -63,7 +66,7 @@ const AccountSetupPage = () => {
         birthDate,
         gender,
         currentLocation,
-        image: profilePicture
+        image: profilePicture,
       }),
     });
 
@@ -92,7 +95,7 @@ const AccountSetupPage = () => {
   };
 
   //converts the blob url into a base64 string
-  const convertBlobToBase64 = async(blobUrl) => {
+  const convertBlobToBase64 = async (blobUrl) => {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
 
@@ -103,8 +106,8 @@ const AccountSetupPage = () => {
       };
       reader.onerror = reject;
       reader.readAsDataURL(blob);
-    })
-  }
+    });
+  };
 
   //handles when the user confirms the new image
   const showCroppedImage = async () => {

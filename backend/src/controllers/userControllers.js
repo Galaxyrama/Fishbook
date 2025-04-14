@@ -72,20 +72,35 @@ export const signUp = async (req, res, next) => {
   }
 };
 
-export const getUserDetails = async (req, res, next) => {
+export const getCurrentUserDetails = async (req, res, next) => {
   const userId = req.session.userID;
 
   try {
     const user = await User.findById(userId).exec();
     return res.status(200).json({
       username: user.username,
-      gender: user.gender,
-      currentLocation: user.currentLocation,
-      birthDate: user.birthDate,
-      desctiption: user.description,
+      profile: user.profilePic,
     });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getUserDetails = async (req, res, next) => {
+  const { username } = req.params;
+
+  try {
+    const user = await User.findOne({ username }).exec();
+    return res.status(200).json({
+      username: user.username,
+      gender: user.gender,
+      currentLocation: user.currentLocation,
+      birthDate: user.birthDate,
+      description: user.description,
+      profile: user.profilePic
+    });
+  } catch (e) {
+    res.status(500).json({ error: "Can't get user" });
   }
 };
 
@@ -135,7 +150,7 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
-export const editUser = async (req, res, next) => {
+export const editUser = async (req, res) => {
   const {
     currentUsername,
     image,

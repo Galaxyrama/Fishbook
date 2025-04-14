@@ -5,10 +5,11 @@ const router = express.Router();
 
 router.put('/forgot-password', UserController.forgotPassword);
 router.get('/session', UserController.authenticateUser);
-router.get('/', UserController.getUserDetails);
+router.get('/', UserController.getCurrentUserDetails);
 router.get("/logout", UserController.logOut);
 router.post('/login', UserController.logIn);
 router.post('/register', UserController.signUp);
 router.put('/setup', UserController.editUser);
+router.get('/:username', UserController.getUserDetails);
 
 export default router;

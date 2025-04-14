@@ -1,13 +1,48 @@
 import React, { useState, useEffect } from "react";
 import Post from "../components/Post";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import useAuth from "../hook/useAuth";
 
 const UserPage = () => {
   const { username } = useParams();
+  const navigate = useNavigate();
+
+  const [profilePic, setProfilePic] = useState("");
+  const [description, setDescription] = useState("");
+
+  const [casts, setCasts] = useState(1);
+  const [hookers, setHookers] = useState(0);
+  const [hooked, setHooked] = useState(0);
+
+  useAuth();
 
   useEffect(() => {
+    const getUser = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/user/${username}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          navigate("*");
+          return;
+        }
+
+        setProfilePic(data.profile.url);
+        setDescription(data.description);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     document.documentElement.scrollTop = 0;
+    getUser();
   });
 
   return (
@@ -19,7 +54,9 @@ const UserPage = () => {
             <div className="flex justify-center">
               <div className="w-40 flex-shrink-0">
                 <img
-                  src="/images/fishBackground.jpg"
+                  src={
+                    profilePic ? profilePic : "/images/avatar-placeholder.png"
+                  }
                   className="w-40 h-40 rounded-full"
                 />
               </div>
@@ -27,15 +64,15 @@ const UserPage = () => {
             <div className="block w-full text-center sm:ml-5 px-3">
               <div className="sm:px-10 py-5 flex justify-evenly text-xl sm:text-2xl sm:gap-10">
                 <div className="block">
-                  <p>2</p>
+                  <p>{casts}</p>
                   <p className="text-[#4B4B4B]">Casts</p>
                 </div>
                 <div className="block">
-                  <p>100</p>
+                  <p>{hookers}</p>
                   <p className="text-[#4B4B4B]">Hookers</p>
                 </div>
                 <div className="block">
-                  <p>5</p>
+                  <p>{hooked}</p>
                   <p className="text-[#4B4B4B]">Hooked</p>
                 </div>
               </div>
@@ -49,7 +86,9 @@ const UserPage = () => {
           </div>
           <div className="text-center mt-3 sm:mt-5">
             <h1 className="text-[40px] sm:text-left">{username}</h1>
-            <p className="text-[18px] text-[#4B4B4B] sm:text-left">Imo Mama</p>
+            <p className="text-[18px] text-[#4B4B4B] sm:text-left">
+              {description}
+            </p>
           </div>
         </div>
       </div>
