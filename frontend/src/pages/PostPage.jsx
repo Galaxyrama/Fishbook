@@ -1,19 +1,24 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { data, Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
 import useAuth from "../hook/useAuth";
+import VideoThumbnail from "../components/VideoThumbnail";
 
 const PostPage = () => {
   const { username, id } = useParams();
-  const tooltipCommentId = `tooltip-comment-${username}-${id}`;
-  const tooltipLikeId = `tooltip-like-${username}-${id}`;
+  const tooltipCommentId = `tooltip-comment-${id}`;
+  const tooltipLikeId = `tooltip-like-${id}`;
   const textareaRef = useRef(null);
-
-  const navigate = useNavigate();
 
   const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState("");
+
+  const [post, setPost] = useState();
+  const [dateUpload, setDateUpload] = useState();
+
+  const [isVideo, setIsVideo] = useState(false);
+  const [isImg, setIsImg] = useState(false);
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(
@@ -27,9 +32,9 @@ const PostPage = () => {
   useAuth();
 
   useEffect(() => {
-
     document.documentElement.scrollTop = 0;
 
+    //The tooltip about comment and like
     const $targetE1 = document.getElementById(tooltipCommentId);
     const $triggerE1 = document.querySelector(
       `[data-tooltip-target="${tooltipCommentId}"]`
@@ -47,7 +52,41 @@ const PostPage = () => {
     if ($targetE2 && $triggerE2) {
       new Tooltip($targetE2, $triggerE2);
     }
+
+    const getPost = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/post/status/${id}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPost(data);
+          formattedUpload(data.createdAt);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getPost();
   }, []);
+
+  useEffect(() => {
+    if (post?.postImage?.url.includes("video")) {
+      setIsVideo(true);
+      setIsImg(false);
+      return;
+    } else {
+      setIsImg(true);
+      setIsVideo(false);
+      return;
+    }
+  }, [post]);
 
   // dynamically changes the height of textarea
   const handleCommentChange = (e) => {
@@ -61,6 +100,17 @@ const PostPage = () => {
     }
   };
 
+  const formattedUpload = (d) => {
+    const date = new Date(d);
+
+    const formattedDate = date.toLocaleDateString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    setDateUpload(formattedDate);
+  };
+
   return (
     <div className="font-montagu h-screen bg-background">
       <Navbar />
@@ -71,10 +121,12 @@ const PostPage = () => {
           <div className="flex items-center justify-between py-3">
             <div className="flex gap-3 items-center">
               <Link to={`/profile/${username}`}>
-                <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full"
-                />
+                {post?.userId?.profilePic?.url && (
+                  <img
+                    src={post.userId?.profilePic.url}
+                    className="w-12 h-12 rounded-full border-1 border-gray-200"
+                  />
+                )}
               </Link>
               <Link to={`/profile/${username}`}>
                 <p
@@ -88,16 +140,20 @@ const PostPage = () => {
             <p className="text-2xl select-none cursor-pointer hover:text-btn">
               •••
             </p>
-          </div>
-          <p className="text-justify">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sed quod
-            explicabo.
-          </p>
-          <img src="/images/lmao.png" className="w-full" />
+          </div>{" "}
+          {post?.postTitle && <p className="text-justify">{post?.postTitle}</p>}
+          {post?.postImage && isImg && (
+            <img src={post?.postImage.url} className="w-full" />
+          )}
+          {post?.postImage && isVideo && (
+            <VideoThumbnail
+              videoSrc={post?.postImage.url}
+              postId={id}
+              username={username}
+            />
+          )}
           <div className="flex text-gray-500 select-none py-3 text-[13px]">
-            <p>Post Time</p>
-            <p className="px-1">•</p>
-            <p>Post Date</p>
+            <p>{dateUpload}</p>
           </div>
           <hr />
           <div className="flex justify-between mr-10 ml-15 py-2">
@@ -107,7 +163,7 @@ const PostPage = () => {
               data-tooltip-target={tooltipCommentId}
             >
               <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-              <p>590</p>
+              <p>{post?.likeCount}</p>
             </div>
             {/* Likes */}
             <div
@@ -115,7 +171,7 @@ const PostPage = () => {
               data-tooltip-target={tooltipLikeId}
             >
               <img src="/images/heart.png" alt="" className="w-6 h-6 mr-1" />
-              <p>8770</p>
+              <p>{post?.commentCount}</p>
             </div>
             {/* Share Link */}
             <div
@@ -132,8 +188,8 @@ const PostPage = () => {
             <div className="w-12 flex-shrink-0">
               <Link to={`/profile/${username}`}>
                 <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full inline-block"
+                  src={post?.userId?.profilePic.url}
+                  className="w-12 h-12 rounded-full inline-block border-1 border-gray-200"
                 />
               </Link>
             </div>
@@ -151,10 +207,8 @@ const PostPage = () => {
               </button>
             </div>
           </div>
-
           <CommentComponent User={"User2"} DateUpload={Date.now()} />
           <CommentComponent User={"User3"} DateUpload={Date.now()} />
-
           <hr className="pb-3" />
         </div>
       </div>

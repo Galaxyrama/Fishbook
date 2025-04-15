@@ -6,7 +6,7 @@ const router = express.Router();
 router.post('/upload', PostController.uploadPost);
 router.get('/', PostController.getPosts);
 router.get('/:username', PostController.getUserPosts);
+router.get('/status/:postId', PostController.getPost);
 router.put('/edit');
-router.put('/:postId');
 
 export default router;

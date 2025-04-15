@@ -61,8 +61,20 @@ export const getUserPosts = async (req, res) => {
   }
 };
 
-export const likePost = async (req, res) => {
-  
+export const getPost = async (req, res) => {
+  const { postId } = req.params;
+  try {
+    const post = await Post.findById(postId)
+      .populate("userId", "profilePic.url")
+      .exec();
+
+    return res.status(200).json(post);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't find the post" });
+  }
 };
+
+export const likePost = async (req, res) => {};
 
 export const unlikePost = async (req, res) => {};
