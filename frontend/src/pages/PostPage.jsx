@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
-import useAuthStore from "../stores/useAuthStore";
+import useAuth from "../hook/useAuth";
 
 const PostPage = () => {
   const { username, id } = useParams();
@@ -24,12 +24,9 @@ const PostPage = () => {
     setTimeout(() => setIsOpen(false), 5000);
   };
 
-  useEffect(() => {
-    const { userId } = useAuthStore.getState();
+  useAuth();
 
-    if (!userId) {
-      navigate("/login");
-    }
+  useEffect(() => {
 
     document.documentElement.scrollTop = 0;
 

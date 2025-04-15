@@ -5,6 +5,8 @@ const router = express.Router();
 
 router.post('/upload', PostController.uploadPost);
 router.get('/', PostController.getPosts);
-router.put('/edit')
+router.get('/:username', PostController.getUserPosts);
+router.put('/edit');
+router.put('/:postId');
 
 export default router;

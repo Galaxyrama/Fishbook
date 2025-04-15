@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
-import { uploadProfile } from "../services/cloudinary.js";
+import { uploadProfile, deleteFile } from "../services/cloudinary.js";
 
 export const logIn = async (req, res, next) => {
   try {
@@ -15,9 +15,7 @@ export const logIn = async (req, res, next) => {
     const user = await User.findOne({ email }).select("+password").exec();
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password);
@@ -107,7 +105,7 @@ export const getUserDetails = async (req, res) => {
       profile: user.profilePic,
       isMyProfile,
       followingCount: user.followingCount,
-      followerCount: user.followerCount
+      followerCount: user.followerCount,
     });
   } catch (e) {
     res.status(500).json({ error: "Can't get user" });
@@ -154,20 +152,20 @@ export const forgotPassword = async (req, res, next) => {
       return res.status(400).json({ message: "User not found" });
     }
 
-    res.status(200).json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (error) {
     next(error);
   }
 };
 
-export const editUser = async (req, res) => {
+export const editUser = async (req, res, next) => {
   const {
     currentUsername,
-    image,
     birthDate,
     gender,
     currentLocation,
     description,
+    image,
   } = req.body;
 
   const userId = req.session.userID;
@@ -187,29 +185,38 @@ export const editUser = async (req, res) => {
         .json({ error: "Birthdate lapses the current date." });
     }
 
+    const updateFields = {
+      username: currentUsername,
+      gender,
+      currentLocation,
+      description,
+      birthDate,
+    };
+
+    const user = await User.findOne({ username: currentUsername }).exec();
+
     let imageData = {};
 
-    if (image) {
+    if (image && !image.startsWith("https://res.cloudinary.com/")) {
       const results = await uploadProfile(image, "Profile");
       imageData = results;
+      updateFields.profilePic = imageData;
+
+      if (user?.profilePic?.publicId) {
+        await deleteFile(user.profilePic.publicId, "Profile");
+      }
     }
 
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
-      {
-        username: currentUsername,
-        profilePic: imageData,
-        gender,
-        currentLocation,
-        description,
-        birthDate,
-      },
+      updateFields,
       { new: true }
     );
 
-    res.status(200).json(updatedUser);
+    return res.status(200).json(updatedUser);
   } catch (e) {
-    res
+    console.error("Edit user error:", e);
+    return res
       .status(500)
       .json({ error: "A server error occurred with this request" });
   }

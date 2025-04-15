@@ -11,9 +11,11 @@ const EditUserProfilePage = () => {
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState("Male");
   const [currentLocation, setCurrentLocation] = useState("South Georgia");
-  const [profilePicture, setProfilePicture] = useState(
+  const [originalProfilePicture, setOriginalProfilePicture] = useState(
     "/images/avatar-placeholder.png"
   );
+  const [profilePicture, setProfilePicture] = useState("");
+
   const [tempProfile, setTempProfile] = useState();
   const [error, setError] = useState("");
 
@@ -58,7 +60,7 @@ const EditUserProfilePage = () => {
           setDescription(data.description);
           setGender(data.gender);
           setCurrentLocation(data.currentLocation);
-          setProfilePicture(data.profile.url);
+          setOriginalProfilePicture(data.profile.url);
 
           const today = new Date(data.birthDate);
           const formatted = today.toISOString().split("T")[0];
@@ -79,18 +81,23 @@ const EditUserProfilePage = () => {
     e.preventDefault();
     setError("");
 
+    const bodyData = {
+      currentUsername,
+      description,
+      birthDate,
+      gender,
+      currentLocation,
+    };
+
+    if(profilePicture !== originalProfilePicture) {
+      bodyData.image = profilePicture;
+    }
+
     const response = await fetch("http://localhost:5175/api/user/setup", {
       method: "PUT",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        currentUsername,
-        description,
-        birthDate,
-        gender,
-        currentLocation,
-        image: profilePicture,
-      }),
+      body: JSON.stringify(bodyData),
     });
 
     const data = await response.json();
@@ -127,6 +134,7 @@ const EditUserProfilePage = () => {
       reader.onloadend = () => {
         resolve(reader.result);
       };
+      
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
@@ -154,7 +162,7 @@ const EditUserProfilePage = () => {
   const closeModal = () => {
     setOpenCropper(false);
     setTempProfile("");
-    setProfilePicture("/images/avatar-placeholder.png");
+    setProfilePicture(originalProfilePicture);
   };
 
   return (
@@ -172,7 +180,7 @@ const EditUserProfilePage = () => {
                   src={
                     profilePicture
                       ? profilePicture
-                      : "/images/avatar-placeholder.png"
+                      : originalProfilePicture
                   }
                   className="h-40 w-40 rounded-full justify-center cursor-pointer"
                   htmlFor="fileUpload"

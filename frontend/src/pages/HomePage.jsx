@@ -10,8 +10,9 @@ const HomePage = () => {
 
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState("NaN");
+  const [username, setUsername] = useState("N/A");
   const [profilePicture, setProfilePicture] = useState("");
+  const [posts, setPosts] = useState([]);
 
   const [postTitle, setPostTitle] = useState("");
   const [addPost, setAddPost] = useState("");
@@ -53,8 +54,25 @@ const HomePage = () => {
       }
     };
 
+    const getPosts = async () => {
+      try {
+        const response = await fetch("http://localhost:5175/api/post/", {
+          credentials: "include",
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPosts(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     document.documentElement.scrollTop = 0;
     getUser();
+    getPosts();
   }, []);
 
   // dynamically changes the height of textarea
@@ -120,7 +138,7 @@ const HomePage = () => {
     if (!addFile) return;
 
     //sets the largest file size to 50mb
-    if(addFile.size > maxSizeInByte) {
+    if (addFile.size > maxSizeInByte) {
       alert("File is too large. Maximum allowed size is 50mb");
       return;
     }
@@ -160,7 +178,7 @@ const HomePage = () => {
                   <Link to={`/profile/${username}`}>
                     <img
                       src={profilePicture}
-                      className="w-12 h-12 rounded-4xl cursor-pointer"
+                      className="w-12 h-12 rounded-4xl border-1 border-gray-200"
                     />
                   </Link>
                 </div>
@@ -175,13 +193,20 @@ const HomePage = () => {
             </div>
           </div>
 
-          <Post
-            User={username}
-            Img="images/Towa.jpg"
-            DateUpload={Date.now() + 100000000}
-            ProfilePic="images/fishBackground.jpg"
-            LikeAmount={350}
-          />
+          {posts &&
+            posts.map((item, index) => (
+              <Post
+                PostID={item._id}
+                User={item.userId.username}
+                PostTitle={item.postTitle}
+                File={item.postImage.url}
+                CommentAmount={item.commentCount}
+                ProfilePic={item.userId.profilePic.url}
+                LikeAmount={item.likeCount}
+                DateUpload={item.createdAt}
+                key={index}
+              />
+            ))}
 
           {/* Modal for Create Post */}
           {isOpen && (

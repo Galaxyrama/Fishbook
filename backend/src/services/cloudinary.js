@@ -1,5 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import "dotenv/config";
+import path from "path";
 
 // Configuration
 cloudinary.config({
@@ -33,4 +34,16 @@ const uploadPostFile = async (path, folder = "Fishbook") => {
   }
 };
 
-export { uploadProfile, uploadPostFile };
+//Deletes a file, will be used when editing post file or profile
+const deleteFile = async (path, folder) => {
+  try {
+    await cloudinary.uploader
+      .destroy(path, { folder: folder, invalidate: true })
+      .then((result) => console.log(result));
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+};
+
+export { uploadProfile, uploadPostFile, deleteFile };

@@ -13,7 +13,8 @@ const commentSchema = new mongoose.Schema(
       required: true,
     },
     commentText: { type: String, require: true },
-    likes: { type: Number, default: 0 },
+    likeAmount: { type: Number, default: 0 },
+    commentAmount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

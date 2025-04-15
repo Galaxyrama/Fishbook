@@ -1,17 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Tooltip } from "flowbite";
+import VideoThumbnail from "./VideoThumbnail";
 
-const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
+const Post = ({
+  PostID,
+  User,
+  File,
+  DateUpload,
+  ProfilePic,
+  LikeAmount,
+  CommentAmount,
+  PostTitle,
+}) => {
   const date = new Date(DateUpload);
-  const tooltipCommentId = `tooltip-comment-${User}-${DateUpload}`;
-  const tooltipLikeId = `tooltip-like-${User}-${DateUpload}`;
+  const tooltipCommentId = `tooltip-comment-${PostID}`;
+  const tooltipLikeId = `tooltip-like-${PostID}`;
 
   const [likeAmount, setLikeAmount] = useState(LikeAmount);
   const [hasLiked, setHasLiked] = useState(false);
   const [tooltipLike, setTooltipLike] = useState("Like");
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isVideo, setIsVideo] = useState(false);
+  const [isImg, setIsImg] = useState(false);
 
   const formattedDate = date.toLocaleDateString("en-US", {
     month: "2-digit",
@@ -20,7 +32,9 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
   });
 
   const handleShareLink = () => {
-    navigator.clipboard.writeText(`${window.location.href}${User}/status/1`);
+    navigator.clipboard.writeText(
+      `${window.location.href}${User}/status/${PostID}`
+    );
     setIsOpen(true);
 
     setTimeout(() => setIsOpen(false), 5000);
@@ -56,23 +70,32 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
     if ($targetE2 && $triggerE2) {
       new Tooltip($targetE2, $triggerE2);
     }
-  }, []);
+
+    if (!File) return;
+
+    if (File.includes("video")) {
+      setIsVideo(true);
+      setIsImg(false);
+    } else {
+      setIsImg(true);
+      setIsVideo(false);
+    }
+  }, [File]);
 
   return (
     <div className="font-montagu px-2 h-full">
       <div className="flex justify-center w-full pb-5">
         <div className="w-full max-w-3xl pb-2">
-          <div className="flex gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4 ">
+          <div className="flex gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4">
             <div className="w-12 flex-shrink-0">
               <Link to={`/profile/${User}`}>
                 <img
                   src={ProfilePic}
-                  alt=""
-                  className="w-12 h-12 rounded-4xl mr-12 cursor-pointer"
+                  className="w-12 h-12 rounded-4xl mr-12 cursor-pointer border-1 border-gray-200"
                 />
               </Link>
             </div>
-            <div className="text-left pr-2 max-w-3xl">
+            <div className="text-left pr-2 max-w-3xl w-full">
               <Link to={`/profile/${User}`}>
                 <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
                   {User}
@@ -82,61 +105,65 @@ const Post = ({ User, Img, DateUpload, ProfilePic, LikeAmount }) => {
 
               <div>
                 {/* Text Post */}
-                <Link to={`/${User}/status/1`}>
-                  <p className="text-justify pb-3 cursor-pointer">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Quidem, eaque maxime. Ex, earum vitae, blanditiis
-                    perferendis voluptate eaque dolore porro magni facilis
-                    consequuntur totam omnis odio perspiciatis recusandae
-                    mollitia quo?
-                  </p>
-                </Link>
+                {PostTitle && (
+                  <Link to={`/${User}/status/${PostID}`}>
+                    <p className="text-justify pb-3">{PostTitle}</p>
+                  </Link>
+                )}
                 {/* Image Post */}
-                {Img && <img src={Img} alt="" className="pb-3 w-full" />}
+                {File && isImg && (
+                  <Link to={`/${User}/status/${PostID}`}>
+                    <img src={File} alt="" className="pb-3 w-full" />
+                  </Link>
+                )}
+                {/* Video Post */}
+                {File && isVideo && (
+                  <VideoThumbnail
+                    videoSrc={File}
+                    postId={PostID}
+                    username={User}
+                  />
+                )}
 
                 <hr className="pt-3" />
+              </div>
 
-                <div className="flex justify-between mx-10">
-                  {/* Comments */}
-                  <Link to={`/${User}/status/1`}>
-                    <div
-                      className="flex select-none cursor-pointer"
-                      data-tooltip-target={tooltipCommentId}
-                    >
-                      <img
-                        src="/images/comment.png"
-                        alt=""
-                        className="w-6 h-6 mr-1"
-                      />
-                      <p>590</p>
-                    </div>
-                  </Link>
-                  {/* Likes */}
+              <div className="flex justify-between mx-10">
+                {/* Comments */}
+                <Link to={`/${User}/status/${PostID}`}>
                   <div
                     className="flex select-none cursor-pointer"
-                    data-tooltip-target={tooltipLikeId}
-                    onClick={handleLike}
+                    data-tooltip-target={tooltipCommentId}
                   >
-                    <div className="w-6 h-6 flex items-center justify-center mr-1">
-                      <img
-                        src={
-                          hasLiked
-                            ? "/images/heart-liked.png"
-                            : "/images/heart.png"
-                        }
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
-                    <p>{likeAmount}</p>
+                    <img src="/images/comment.png" className="w-6 h-6 mr-1" />
+                    <p>{CommentAmount}</p>
                   </div>
-                  {/* Share Link */}
-                  <div
-                    className="flex select-none cursor-pointer"
-                    onClick={handleShareLink}
-                  >
-                    <img src="/images/share.png" className="w-g h-6 mr-1" />
-                    <p>Share</p>
+                </Link>
+                {/* Likes */}
+                <div
+                  className="flex select-none cursor-pointer"
+                  data-tooltip-target={tooltipLikeId}
+                  onClick={handleLike}
+                >
+                  <div className="w-6 h-6 flex items-center justify-center mr-1">
+                    <img
+                      src={
+                        hasLiked
+                          ? "/images/heart-liked.png"
+                          : "/images/heart.png"
+                      }
+                      className="w-full h-full object-contain"
+                    />
                   </div>
+                  <p>{likeAmount}</p>
+                </div>
+                {/* Share Link */}
+                <div
+                  className="flex select-none cursor-pointer"
+                  onClick={handleShareLink}
+                >
+                  <img src="/images/share.png" className="w-g h-6 mr-1" />
+                  <p>Share</p>
                 </div>
               </div>
             </div>

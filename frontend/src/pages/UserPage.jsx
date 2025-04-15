@@ -3,7 +3,6 @@ import Post from "../components/Post";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useAuth from "../hook/useAuth";
-import useAuthStore from "../stores/useAuthStore";
 
 const UserPage = () => {
   const { username } = useParams();
@@ -13,16 +12,15 @@ const UserPage = () => {
   const [description, setDescription] = useState("");
   const [btnText, setBtnText] = useState("");
   const [myProfile, setMyProfile] = useState(false);
+  const [posts, setPosts] = useState([]);
 
-  const [casts, setCasts] = useState(1);
+  const [casts, setCasts] = useState(0);
   const [hookers, setHookers] = useState(0);
   const [hooked, setHooked] = useState(0);
 
   useAuth();
 
   useEffect(() => {
-    const { userId } = useAuthStore.getState();
-
     const getUser = async () => {
       try {
         const response = await fetch(
@@ -45,7 +43,28 @@ const UserPage = () => {
         setHookers(data.followerCount);
         setHooked(data.followingCount);
 
-        setBtnText((myProfile ? "Edit Account" : "Get Hooked"));
+        setBtnText(data.isMyProfile ? "Edit Account" : "Get Hooked" );
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const getUserPosts = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/post/${username}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPosts(data);
+          setCasts(data.length);
+          return;
+        }
       } catch (e) {
         console.error(e);
       }
@@ -53,17 +72,18 @@ const UserPage = () => {
 
     document.documentElement.scrollTop = 0;
     getUser();
-  });
+    getUserPosts();
+  }, []);
 
   const handleButton = () => {
-    if(myProfile) {
+    if (myProfile) {
       navigate(`/edit/${username}`);
       return;
     }
   };
 
   return (
-    <div className=" bg-background h-screen font-montagu">
+    <div className=" bg-background h-full font-montagu">
       <Navbar />
       {profilePic && description && (
         <div className="flex w-full justify-center pt-25 sm:px-16">
@@ -89,13 +109,15 @@ const UserPage = () => {
                     <p className="text-[#4B4B4B]">Hooked</p>
                   </div>
                 </div>
-                <button
-                  className="w-full rounded-xl py-3 bg-btn text-white
+                {btnText && (
+                  <button
+                    className="w-full rounded-xl py-3 bg-btn text-white
                                  cursor-pointer"
-                  onClick={handleButton}
-                >
-                  {btnText}
-                </button>
+                    onClick={handleButton}
+                  >
+                    {btnText}
+                  </button>
+                )}
               </div>
             </div>
             <div className="text-center mt-3 sm:mt-5">
@@ -109,6 +131,21 @@ const UserPage = () => {
       )}
 
       <hr className="my-5 border-gray-600" />
+
+      {posts &&
+        posts.map((item, index) => (
+          <Post
+            PostID={item._id}
+            User={username}
+            PostTitle={item.postTitle}
+            File={item.postImage.url}
+            CommentAmount={item.commentCount}
+            ProfilePic={profilePic}
+            LikeAmount={item.likeCount}
+            DateUpload={item.createdAt}
+            key={index}
+          />
+        ))}
     </div>
   );
 };
