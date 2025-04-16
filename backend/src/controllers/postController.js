@@ -3,7 +3,7 @@ import { User } from "../models/User.js";
 import { Like } from "../models/Like.js";
 import { uploadPostFile } from "../services/cloudinary.js";
 
-export const uploadPost = async (req, res, next) => {
+export const uploadPost = async (req, res) => {
   const { postTitle, postImage } = req.body;
   const userId = req.session.userID;
 

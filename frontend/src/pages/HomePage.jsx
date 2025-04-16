@@ -16,7 +16,6 @@ const HomePage = () => {
 
   const [postTitle, setPostTitle] = useState("");
   const [addPost, setAddPost] = useState("");
-  const [base64Image, setBase64Image] = useState("");
   const [isImage, setIsImage] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
 
@@ -104,12 +103,12 @@ const HomePage = () => {
   };
 
   const handlePostUpload = async () => {
-    if (!addPost && !postTitle) {
-      return;
-    }
+    if (!addPost && !postTitle) return;
 
-    if (addPost && isImage) {
-      setBase64Image(await convertBlobToBase64(addPost));
+    let base64 = null;
+
+    if (addPost) {
+      base64 = await convertBlobToBase64(addPost);
     }
 
     const response = await fetch("http://localhost:5175/api/post/upload", {
@@ -118,7 +117,7 @@ const HomePage = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         postTitle,
-        postImage: base64Image,
+        postImage: base64,
       }),
     });
 
@@ -231,12 +230,12 @@ const HomePage = () => {
                     <div className="w-12 flex-shrink-0">
                       <img
                         src={profilePicture}
-                        className="w-12 h-12 rounded-full"
+                        className="w-12 h-12 rounded-full border-1 border-gray-200"
                       />
                     </div>
                     <p className="text-xl">{username}</p>
                   </div>
-                  <div className="block px-3 py-1 overflow-y-auto max-h-[55vh]">
+                  <div className="block pr-3 py-1 overflow-y-auto max-h-[55vh]">
                     <textarea
                       ref={textareaRef}
                       className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"

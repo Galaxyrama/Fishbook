@@ -88,7 +88,7 @@ const VideoThumbnail = ({ videoSrc, postId, username }) => {
         </div>
       </div>
 
-      <div className="flex z-10">
+      <div className="flex z-10 pb-2">
         <div
           className="w-full h-3 bg-gray-300 cursor-pointer"
           onClick={handleProgressClick}

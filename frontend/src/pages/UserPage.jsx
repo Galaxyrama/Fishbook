@@ -12,6 +12,7 @@ const UserPage = () => {
   const [description, setDescription] = useState("");
   const [btnText, setBtnText] = useState("");
   const [myProfile, setMyProfile] = useState(false);
+  const [isFollowing, setIsFollowing] = useState();
   const [posts, setPosts] = useState([]);
 
   const [casts, setCasts] = useState(0);
@@ -43,7 +44,7 @@ const UserPage = () => {
         setHookers(data.followerCount);
         setHooked(data.followingCount);
 
-        setBtnText(data.isMyProfile ? "Edit Account" : "Get Hooked" );
+        setBtnText(data.isMyProfile ? "Edit Account" : "Get Hooked");
       } catch (e) {
         console.error(e);
       }
@@ -70,20 +71,68 @@ const UserPage = () => {
       }
     };
 
+    const checkIfFollowed = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/user/${username}/follow`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setIsFollowing(data.followed);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     document.documentElement.scrollTop = 0;
     getUser();
     getUserPosts();
+    checkIfFollowed();
   }, []);
 
-  const handleButton = () => {
+  useEffect(() => {
+    if(!myProfile) setBtnText(isFollowing ? "Got Hooked" : "Get Hooked");
+  }, [isFollowing, myProfile])
+
+  const handleButton = async () => {
     if (myProfile) {
       navigate(`/edit/${username}`);
       return;
     }
+
+    try {
+      const response = await fetch(
+        `http://localhost:5175/api/user/${username}/follow`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        setHookers((prev) => (isFollowing ? prev - 1 : prev + 1));
+        setBtnText(data.message);
+        setIsFollowing((prev) => !prev);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   return (
-    <div className=" bg-background h-full font-montagu">
+    <div
+      className={`bg-background ${
+        casts === 0 ? "h-screen" : "h-full"
+      } font-montagu`}
+    >
       <Navbar />
       {profilePic && description && (
         <div className="flex w-full justify-center pt-25 sm:px-16">

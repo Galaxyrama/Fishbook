@@ -176,9 +176,9 @@ const PostPage = () => {
               •••
             </p>
           </div>{" "}
-          {post?.postTitle && <p className="text-justify">{post?.postTitle}</p>}
+          {post?.postTitle && <p className="text-justify pb-3">{post?.postTitle}</p>}
           {post?.postImage && isImg && (
-            <img src={post?.postImage.url} className="w-full" />
+            <img src={post?.postImage.url} className="w-full"/>
           )}
           {post?.postImage && isVideo && (
             <VideoThumbnail

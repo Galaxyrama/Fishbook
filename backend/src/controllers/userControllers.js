@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
+import { Follow } from "../models/Follow.js";
 import { uploadProfile, deleteFile } from "../services/cloudinary.js";
 
 export const logIn = async (req, res, next) => {
@@ -98,9 +99,6 @@ export const getUserDetails = async (req, res) => {
 
     return res.status(200).json({
       username: user.username,
-      gender: user.gender,
-      currentLocation: user.currentLocation,
-      birthDate: user.birthDate,
       description: user.description,
       profile: user.profilePic,
       isMyProfile,
@@ -158,7 +156,7 @@ export const forgotPassword = async (req, res, next) => {
   }
 };
 
-export const editUser = async (req, res, next) => {
+export const editUser = async (req, res) => {
   const {
     currentUsername,
     birthDate,
@@ -219,5 +217,64 @@ export const editUser = async (req, res, next) => {
     return res
       .status(500)
       .json({ error: "A server error occurred with this request" });
+  }
+};
+
+export const followUser = async (req, res) => {
+  const { username } = req.params;
+  const userId = req.session.userID;
+
+  try {
+    const followee = await User.findOne({ username }).exec();
+
+    const existing = await Follow.findOne({
+      userId,
+      followeeId: followee._id,
+    });
+
+    if (!existing) {
+      await Follow.create({
+        userId,
+        followeeId: followee._id,
+      });
+      await User.findByIdAndUpdate(userId, { $inc: { followingCount: 1 } });
+      await User.findByIdAndUpdate(followee._id, {
+        $inc: { followerCount: 1 },
+      });
+      return res.status(200).json({ message: "Got Hooked" });
+    } else {
+      await Follow.findByIdAndDelete(existing._id);
+      await User.findByIdAndUpdate(userId, { $inc: { followingCount: -1 } });
+      await User.findByIdAndUpdate(followee._id, {
+        $inc: { followerCount: -1 },
+      });
+      return res.status(200).json({ message: "Get Hooked" });
+    }
+  } catch (e) {
+    console.error("Couldn't follow user:", e);
+    return res
+      .status(500)
+      .json({ error: "A server error occurred with this request" });
+  }
+};
+
+export const checkIfFollowed = async (req, res) => {
+  const { username } = req.params;
+  const userId = req.session.userID;
+
+  try {
+    const followee = await User.findOne({ username }).exec();
+
+    const existing = await Follow.findOne({
+      userId,
+      followeeId: followee._id,
+    });
+
+    return res.status(200).json({ followed: !!existing });
+  } catch (e) {
+    console.error("Couldn't check follow relationship:", e);
+    return res
+      .status(500)
+      .json({ error: "Couldn't check follow relationship" });
   }
 };
