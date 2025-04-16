@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
-import { data, Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
 import useAuth from "../hook/useAuth";
 import VideoThumbnail from "../components/VideoThumbnail";
@@ -16,6 +16,8 @@ const PostPage = () => {
 
   const [post, setPost] = useState();
   const [dateUpload, setDateUpload] = useState();
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeAmount, setLikeAmount] = useState(0);
 
   const [isVideo, setIsVideo] = useState(false);
   const [isImg, setIsImg] = useState(false);
@@ -35,24 +37,27 @@ const PostPage = () => {
     document.documentElement.scrollTop = 0;
 
     //The tooltip about comment and like
-    const $targetE1 = document.getElementById(tooltipCommentId);
-    const $triggerE1 = document.querySelector(
-      `[data-tooltip-target="${tooltipCommentId}"]`
-    );
+    const tooltipAppear = () => {
+      const $targetE1 = document.getElementById(tooltipCommentId);
+      const $triggerE1 = document.querySelector(
+        `[data-tooltip-target="${tooltipCommentId}"]`
+      );
 
-    const $targetE2 = document.getElementById(tooltipLikeId);
-    const $triggerE2 = document.querySelector(
-      `[data-tooltip-target="${tooltipLikeId}"]`
-    );
+      const $targetE2 = document.getElementById(tooltipLikeId);
+      const $triggerE2 = document.querySelector(
+        `[data-tooltip-target="${tooltipLikeId}"]`
+      );
 
-    if ($targetE1 && $triggerE1) {
-      new Tooltip($targetE1, $triggerE1);
-    }
+      if ($targetE1 && $triggerE1) {
+        new Tooltip($targetE1, $triggerE1);
+      }
 
-    if ($targetE2 && $triggerE2) {
-      new Tooltip($targetE2, $triggerE2);
-    }
+      if ($targetE2 && $triggerE2) {
+        new Tooltip($targetE2, $triggerE2);
+      }
+    };
 
+    //Gets the post data
     const getPost = async () => {
       try {
         const response = await fetch(
@@ -65,8 +70,9 @@ const PostPage = () => {
         const data = await response.json();
 
         if (response.ok) {
-          setPost(data);
-          formattedUpload(data.createdAt);
+          setPost(data.post);
+          setLikeAmount(data.post.likeCount);
+          setIsLiked(data.liked);
         }
       } catch (e) {
         console.error(e);
@@ -74,9 +80,12 @@ const PostPage = () => {
     };
 
     getPost();
+    tooltipAppear();
   }, []);
 
   useEffect(() => {
+    formattedUpload(post?.createdAt);
+
     if (post?.postImage?.url.includes("video")) {
       setIsVideo(true);
       setIsImg(false);
@@ -111,8 +120,34 @@ const PostPage = () => {
     setDateUpload(formattedDate);
   };
 
+  const handleLike = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5175/api/post/status/${id}/like`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if(data.liked) {
+          setIsLiked(true);
+          setLikeAmount((prev) => prev + 1);
+        } else {
+          setIsLiked(false);
+          setLikeAmount((prev) => prev - 1);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
-    <div className="font-montagu h-screen bg-background">
+    <div className="font-montagu h-full bg-background">
       <Navbar />
 
       {/* Post block */}
@@ -163,15 +198,19 @@ const PostPage = () => {
               data-tooltip-target={tooltipCommentId}
             >
               <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-              <p>{post?.likeCount}</p>
+              <p>{post?.commentCount}</p>
             </div>
             {/* Likes */}
             <div
               className="flex select-none cursor-pointer"
               data-tooltip-target={tooltipLikeId}
+              onClick={handleLike}
             >
-              <img src="/images/heart.png" alt="" className="w-6 h-6 mr-1" />
-              <p>{post?.commentCount}</p>
+              <img
+                src={isLiked ? "/images/heart-liked.png" : "/images/heart.png"}
+                className="w-6 h-6 mr-1"
+              />
+              <p>{likeAmount}</p>
             </div>
             {/* Share Link */}
             <div
@@ -247,7 +286,7 @@ const PostPage = () => {
                    opacity-0 transition-opacity 
                    duration-300 tooltip"
       >
-        Like
+        {isLiked ? "Unlike" : "Like"}
       </div>
     </div>
   );

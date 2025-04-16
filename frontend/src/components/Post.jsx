@@ -18,8 +18,9 @@ const Post = ({
   const tooltipLikeId = `tooltip-like-${PostID}`;
 
   const [likeAmount, setLikeAmount] = useState(LikeAmount);
-  const [hasLiked, setHasLiked] = useState(false);
-  const [tooltipLike, setTooltipLike] = useState("Like");
+  const [hasLiked, setHasLiked] = useState();
+  //to prevent visual bug on the like from showing incorrect numbers
+  const [postLiked, setPostLiked] = useState();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
@@ -31,45 +32,45 @@ const Post = ({
     year: "numeric",
   });
 
-  const handleShareLink = () => {
-    navigator.clipboard.writeText(
-      `${window.location.href}${User}/status/${PostID}`
-    );
-    setIsOpen(true);
-
-    setTimeout(() => setIsOpen(false), 5000);
-  };
-
-  const handleLike = () => {
-    if (!hasLiked) {
-      setLikeAmount(likeAmount + 1);
-      setHasLiked(true);
-      setTooltipLike("Unlike");
-    } else {
-      setLikeAmount(likeAmount - 1);
-      setHasLiked(false);
-      setTooltipLike("Like");
-    }
-  };
-
   useEffect(() => {
-    const $targetE1 = document.getElementById(tooltipCommentId);
-    const $triggerE1 = document.querySelector(
-      `[data-tooltip-target="${tooltipCommentId}"]`
-    );
+    const tooltipAppear = () => {
+      const $targetE1 = document.getElementById(tooltipCommentId);
+      const $triggerE1 = document.querySelector(
+        `[data-tooltip-target="${tooltipCommentId}"]`
+      );
 
-    const $targetE2 = document.getElementById(tooltipLikeId);
-    const $triggerE2 = document.querySelector(
-      `[data-tooltip-target="${tooltipLikeId}"]`
-    );
+      const $targetE2 = document.getElementById(tooltipLikeId);
+      const $triggerE2 = document.querySelector(
+        `[data-tooltip-target="${tooltipLikeId}"]`
+      );
 
-    if ($targetE1 && $triggerE1) {
-      new Tooltip($targetE1, $triggerE1);
-    }
+      if ($targetE1 && $triggerE1) {
+        new Tooltip($targetE1, $triggerE1);
+      }
 
-    if ($targetE2 && $triggerE2) {
-      new Tooltip($targetE2, $triggerE2);
-    }
+      if ($targetE2 && $triggerE2) {
+        new Tooltip($targetE2, $triggerE2);
+      }
+    };
+
+    const getLikeStatus = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/post/${PostID}/isLiked`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setHasLiked(data.liked);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
 
     if (!File) return;
 
@@ -80,7 +81,45 @@ const Post = ({
       setIsImg(true);
       setIsVideo(false);
     }
+
+    tooltipAppear();
+    getLikeStatus();
   }, [File]);
+
+  const handleShareLink = () => {
+    navigator.clipboard.writeText(
+      `${window.location.href}${User}/status/${PostID}`
+    );
+    setIsOpen(true);
+
+    setTimeout(() => setIsOpen(false), 5000);
+  };
+
+  const handleLike = async () => {
+    try {
+      const response = await fetch(
+        `http://localhost:5175/api/post/status/${PostID}/like`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if(data.liked) {
+          setHasLiked(true);
+          setLikeAmount((prev) => prev + 1);
+        } else {
+          setHasLiked(false);
+          setLikeAmount((prev) => prev - 1);
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div className="font-montagu px-2 h-full">
@@ -204,7 +243,7 @@ const Post = ({
                    opacity-0 transition-opacity 
                    duration-300 tooltip"
       >
-        {tooltipLike}
+        {hasLiked ? "Unlike" : "Like"}
       </div>
     </div>
   );

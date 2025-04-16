@@ -1,7 +1,5 @@
-import { useState } from 'react'
-import { BrowserRouter as Router, Link } from 'react-router-dom'
-import AppRoutes from './Routes'
-import LoginPage from './pages/LoginPage'
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from "./Routes";
 
 function App() {
   return (
@@ -10,7 +8,7 @@ function App() {
         <AppRoutes />
       </Router>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

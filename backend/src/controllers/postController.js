@@ -1,5 +1,6 @@
 import { Post } from "../models/Post.js";
 import { User } from "../models/User.js";
+import { Like } from "../models/Like.js";
 import { uploadPostFile } from "../services/cloudinary.js";
 
 export const uploadPost = async (req, res, next) => {
@@ -63,18 +64,66 @@ export const getUserPosts = async (req, res) => {
 
 export const getPost = async (req, res) => {
   const { postId } = req.params;
+  const userId = req.session.userID;
+
   try {
     const post = await Post.findById(postId)
       .populate("userId", "profilePic.url")
       .exec();
 
-    return res.status(200).json(post);
+    const existing = await Like.findOne({
+      userId,
+      refType: "Post",
+      refId: postId,
+    });
+
+    return res.status(200).json({ post, liked: !!existing });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't find the post" });
   }
 };
 
-export const likePost = async (req, res) => {};
+export const checkIfUserLikedPost = async (req, res) => {
+  const { postId } = req.params;
+  const userId = req.session.userID;
 
-export const unlikePost = async (req, res) => {};
+  try {
+    const liked = await Like.findOne({
+      userId,
+      refType: "Post",
+      refId: postId,
+    });
+
+    return res.status(200).json({ liked: !!liked });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't check the like status" });
+  }
+};
+
+export const likePost = async (req, res) => {
+  const userId = req.session.userID;
+  const { postId } = req.params;
+
+  try {
+    const existing = await Like.findOne({
+      userId,
+      refType: "Post",
+      refId: postId,
+    });
+
+    if (!existing) {
+      await Like.create({ userId, refType: "Post", refId: postId });
+      await Post.findByIdAndUpdate(postId, { $inc: { likeCount: 1 } });
+      return res.status(200).json({ liked: true });
+    } else {
+      await Like.findByIdAndDelete(existing._id);
+      await Post.findByIdAndUpdate(postId, { $inc: { likeCount: -1 } });
+      return res.status(200).json({ liked: false });
+    }
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't like the post" });
+  }
+};
