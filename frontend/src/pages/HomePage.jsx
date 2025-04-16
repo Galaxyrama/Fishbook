@@ -19,6 +19,8 @@ const HomePage = () => {
   const [isImage, setIsImage] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
 
+  const [uploaded, setUploaded] = useState(); //just need the state to keep changing
+
   const openModal = () => {
     setIsOpen(true);
     document.body.style.overflow = "hidden";
@@ -72,7 +74,7 @@ const HomePage = () => {
     document.documentElement.scrollTop = 0;
     getUser();
     getPosts();
-  }, []);
+  }, [], [uploaded]);
 
   // dynamically changes the height of textarea
   const handlePostChange = (e) => {
@@ -127,6 +129,7 @@ const HomePage = () => {
     closeModal();
     setAddPost("");
     setPostTitle("");
+    setUploaded((prev) => !prev);
   };
 
   const handleAddPost = (e) => {

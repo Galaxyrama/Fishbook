@@ -41,14 +41,16 @@ export const editPost = async (req, res) => {
       postTitle: modalPostTitle,
     };
 
-    if (postImage && !postImage.startsWith("https://res.cloudinary.com/")) {
+    if (postImage && post?.postImage?.publicId) {
       const result = await uploadPostFile(postImage, "Fishbook");
       uploadImage = result;
       updateFields.postImage = uploadImage;
+      await deleteFile(post?.postImage?.publicId, "Fishbook");
+    }
 
-      if (post?.postImage?.publicId) {
-        await deleteFile(post?.postImage?.publicId, "Fishbook");
-      }
+    if (!postImage && post?.postImage?.publicId) {
+      await deleteFile(post?.postImage?.publicId, "Fishbook");
+      updateFields.postImage = { url: null, publicId: null };
     }
 
     const updatedPost = await Post.findByIdAndUpdate(

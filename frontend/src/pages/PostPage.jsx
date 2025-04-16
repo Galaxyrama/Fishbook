@@ -44,56 +44,61 @@ const PostPage = () => {
 
   useAuth();
 
-  useEffect(() => {
-    document.documentElement.scrollTop = 0;
+  useEffect(
+    () => {
+      document.documentElement.scrollTop = 0;
 
-    //The tooltip about comment and like
-    const tooltipAppear = () => {
-      const $targetE1 = document.getElementById(tooltipCommentId);
-      const $triggerE1 = document.querySelector(
-        `[data-tooltip-target="${tooltipCommentId}"]`
-      );
-
-      const $targetE2 = document.getElementById(tooltipLikeId);
-      const $triggerE2 = document.querySelector(
-        `[data-tooltip-target="${tooltipLikeId}"]`
-      );
-
-      if ($targetE1 && $triggerE1) {
-        new Tooltip($targetE1, $triggerE1);
-      }
-
-      if ($targetE2 && $triggerE2) {
-        new Tooltip($targetE2, $triggerE2);
-      }
-    };
-
-    //Gets the post data
-    const getPost = async () => {
-      try {
-        const response = await fetch(
-          `http://localhost:5175/api/post/status/${id}`,
-          {
-            credentials: "include",
-          }
+      //The tooltip about comment and like
+      const tooltipAppear = () => {
+        const $targetE1 = document.getElementById(tooltipCommentId);
+        const $triggerE1 = document.querySelector(
+          `[data-tooltip-target="${tooltipCommentId}"]`
         );
 
-        const data = await response.json();
+        const $targetE2 = document.getElementById(tooltipLikeId);
+        const $triggerE2 = document.querySelector(
+          `[data-tooltip-target="${tooltipLikeId}"]`
+        );
 
-        if (response.ok) {
-          setPost(data.post);
-          setLikeAmount(data.post.likeCount);
-          setIsLiked(data.liked);
-          setSameUser(data.sameUser);
+        if ($targetE1 && $triggerE1) {
+          new Tooltip($targetE1, $triggerE1);
         }
-      } catch (e) {
-        console.error(e);
-      }
-    };
 
-    getPost();
-    tooltipAppear();
-  }, [], [postFile], [postTitle]);
+        if ($targetE2 && $triggerE2) {
+          new Tooltip($targetE2, $triggerE2);
+        }
+      };
+
+      //Gets the post data
+      const getPost = async () => {
+        try {
+          const response = await fetch(
+            `http://localhost:5175/api/post/status/${id}`,
+            {
+              credentials: "include",
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            setPost(data.post);
+            setLikeAmount(data.post.likeCount);
+            setIsLiked(data.liked);
+            setSameUser(data.sameUser);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      getPost();
+      tooltipAppear();
+    },
+    [],
+    [postFile],
+    [postTitle]
+  );
 
   useEffect(() => {
     formattedUpload(post?.createdAt);
@@ -181,7 +186,7 @@ const PostPage = () => {
   };
 
   const handleEditClick = () => {
-    setAddPost(post?.postImage.url);
+    setAddPost(postFile);
     setIsImgModal(isImg);
     setIsVideoModal(isVideo);
     setModalPostTitle(postTitle);
@@ -269,10 +274,12 @@ const PostPage = () => {
       setPostFile(addPost);
       setPostTitle(modalPostTitle);
     }
-
-    closeModal();
+    
+    setIsImg(isImgModal);
+    setIsVideo(isVideoModal);
     setAddPost("");
     setModalPostTitle("");
+    closeModal();
   };
 
   return (
