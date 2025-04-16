@@ -19,8 +19,6 @@ const Post = ({
 
   const [likeAmount, setLikeAmount] = useState(LikeAmount);
   const [hasLiked, setHasLiked] = useState();
-  //to prevent visual bug on the like from showing incorrect numbers
-  const [postLiked, setPostLiked] = useState();
 
   const [isOpen, setIsOpen] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
@@ -108,7 +106,7 @@ const Post = ({
       const data = await response.json();
 
       if (response.ok) {
-        if(data.liked) {
+        if (data.liked) {
           setHasLiked(true);
           setLikeAmount((prev) => prev + 1);
         } else {
@@ -152,7 +150,11 @@ const Post = ({
                 {/* Image Post */}
                 {File && isImg && (
                   <Link to={`/${User}/status/${PostID}`}>
-                    <img src={File} alt="" className="pb-3 w-full" />
+                    <img
+                      src={File}
+                      alt=""
+                      className="mb-3 w-full rounded-md border-1 border-gray-200"
+                    />
                   </Link>
                 )}
                 {/* Video Post */}

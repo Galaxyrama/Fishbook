@@ -1,7 +1,7 @@
 import { Post } from "../models/Post.js";
 import { User } from "../models/User.js";
 import { Like } from "../models/Like.js";
-import { uploadPostFile } from "../services/cloudinary.js";
+import { uploadPostFile, deleteFile } from "../services/cloudinary.js";
 
 export const uploadPost = async (req, res) => {
   const { postTitle, postImage } = req.body;
@@ -25,6 +25,42 @@ export const uploadPost = async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't create post" });
+  }
+};
+
+export const editPost = async (req, res) => {
+  const { modalPostTitle, postImage } = req.body;
+  const { postId } = req.params;
+
+  try {
+    let uploadImage = {};
+
+    const post = await Post.findById(postId).exec();
+
+    const updateFields = {
+      postTitle: modalPostTitle,
+    };
+
+    if (postImage && !postImage.startsWith("https://res.cloudinary.com/")) {
+      const result = await uploadPostFile(postImage, "Fishbook");
+      uploadImage = result;
+      updateFields.postImage = uploadImage;
+
+      if (post?.postImage?.publicId) {
+        await deleteFile(post?.postImage?.publicId, "Fishbook");
+      }
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      { _id: postId },
+      updateFields,
+      { new: true }
+    );
+
+    return res.status(200).json(updatedPost);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't edit the post" });
   }
 };
 
@@ -71,13 +107,17 @@ export const getPost = async (req, res) => {
       .populate("userId", "profilePic.url")
       .exec();
 
+    let sameUser = false;
+
+    if (post.userId._id == userId) sameUser = true;
+
     const existing = await Like.findOne({
       userId,
       refType: "Post",
       refId: postId,
     });
 
-    return res.status(200).json({ post, liked: !!existing });
+    return res.status(200).json({ post, liked: !!existing, sameUser });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't find the post" });

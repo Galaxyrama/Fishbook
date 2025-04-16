@@ -65,7 +65,7 @@ const VideoThumbnail = ({ videoSrc, postId, username }) => {
         <video
           ref={videoRef}
           src={videoSrc}
-          className="w-full h-auto"
+          className="w-full h-auto rounded-t-md border-1 border-gray-200"
           preload="metadata"
           onEnded={() => setIsPlaying(false)}
           onPause={() => setIsPlaying(false)}
@@ -83,7 +83,7 @@ const VideoThumbnail = ({ videoSrc, postId, username }) => {
             />
           </div>
         )}
-        <div className="absolute bottom-2 right-0 bg-black/60 text-white px-2 py-1">
+        <div className="absolute bottom-2 right-2 bg-black/60 text-white px-2 py-1 border-1 border-white">
           {formatTime(currentTime)} / {duration}
         </div>
       </div>
