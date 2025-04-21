@@ -90,7 +90,6 @@ const HomePage = () => {
 
     const textarea = textareaRef.current;
     if (textarea) {
-      console.log(postTitle.length);
       textarea.style.height = "auto";
       textarea.style.height = `${textarea.scrollHeight}px`;
     }
@@ -137,6 +136,7 @@ const HomePage = () => {
     setAddPost("");
     setPostTitle("");
     setUploaded((prev) => !prev);
+    location.reload();
   };
 
   const handleAddPost = (e) => {
@@ -256,7 +256,7 @@ const HomePage = () => {
                       value={postTitle}
                     />
                     {addPost && isImage && (
-                      <div className="relative">
+                      <div className="relative mr-1">
                         <img
                           src={addPost}
                           className="h-full w-full flex justify-center border border-gray-200 rounded-md"
@@ -269,7 +269,7 @@ const HomePage = () => {
                       </div>
                     )}
                     {addPost && isVideo && (
-                      <div className="relative">
+                      <div className="relative mr-1">
                         <video
                           src={addPost}
                           className="h-full flex justify-center"

@@ -181,8 +181,15 @@ export const deletePost = async (req, res) => {
   const { postId } = req.params;
 
   try {
+    const post = await Post.findById(postId).exec();
+
     await Post.findByIdAndDelete(postId);
 
+    if (post?.postImage?.publicId) {
+      await deleteFile(post?.postImage?.publicId, "Fishbook");
+    }
+
+    return res.status(200).json({ message: "Post deleted" });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't delete the post" });

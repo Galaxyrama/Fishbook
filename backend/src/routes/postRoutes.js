@@ -13,6 +13,6 @@ router.get("/:postId/isLiked", PostController.checkIfUserLikedPost);
 
 router.put("/edit/:postId", PostController.editPost);
 
-router.delete("/:postId/delete", PostController.deletePost)
+router.delete("/status/:postId/delete", PostController.deletePost)
 
 export default router;

@@ -5,6 +5,7 @@ import CommentComponent from "../components/CommentComponent";
 import useAuth from "../hook/useAuth";
 import VideoThumbnail from "../components/VideoThumbnail";
 import ShareLinkComponent from "../components/ShareLinkComponent";
+import DeletePostComponent from "../components/DeletePostComponent";
 
 const PostPage = () => {
   const { username, id } = useParams();
@@ -227,22 +228,6 @@ const PostPage = () => {
     setAddPost("");
   };
 
-  const handleDeletePost = async() => {
-    try {
-      const response = await fetch("http://localhost:5175/api/post/delete", {
-        credentials: "include"
-      });
-
-      const data = await response.json();
-
-      if(response.ok){
-        navigate("/");
-      }
-    } catch(e) {
-      console.error(e);
-    }
-  };
-
   // dynamically changes the height of textarea
   const handlePostChange = (e) => {
     const value = e.target.value;
@@ -341,16 +326,8 @@ const PostPage = () => {
                       </div>
                       <div
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={handleDeletePost}
                       >
-                        <div className="flex">
-                          <img
-                            src="/images/delete.png"
-                            alt="Delete"
-                            className="w-5 h-5 mr-2"
-                          />
-                          <p>Delete Post</p>
-                        </div>
+                        <DeletePostComponent PostId={id}/>
                       </div>
                     </div>
                   </div>

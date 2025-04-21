@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Tooltip } from "flowbite";
 import VideoThumbnail from "./VideoThumbnail";
 import ShareLinkComponent from "./ShareLinkComponent";
+import DeletePostComponent from "./DeletePostComponent";
 
 const Post = ({
   PostID,
@@ -153,9 +154,8 @@ const Post = ({
     setIsEdit(true);
     setIsOpenModal(false);
     document.body.style.overflow = "hidden";
+    
   };
-
-  const handleDeletePost = () => {};
 
   const handleOptions = () => setIsOpenModal((prev) => !prev);
 
@@ -264,48 +264,40 @@ const Post = ({
                   </p>
                 </Link>
                 {SameUser && (
-                  <div className="relative inline-block">
-                    <p
-                      className="text-2xl select-none cursor-pointer hover:text-btn"
-                      onClick={handleOptions}
-                    >
-                      •••
-                    </p>
-                    {isOpenModal && (
-                      <div className="absolute z-1 rounded bg-white right-0 w-41">
-                        <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-                        <div className="border border-gray-200 rounded shadow bg-white w-41">
-                          <div
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={handleEditClick}
-                          >
-                            <div className="flex">
-                              <img
-                                src="/images/edit.png"
-                                alt="Edit"
-                                className="w-5 h-5 mr-2"
-                              />
-                              <p>Edit Post</p>
-                            </div>
-                          </div>
-                          <div
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={handleDeletePost}
-                          >
-                            <div className="flex">
-                              <img
-                                src="/images/delete.png"
-                                alt="Delete"
-                                className="w-5 h-5 mr-2"
-                              />
-                              <p>Delete Post</p>
-                            </div>
-                          </div>
+              <div className="relative inline-block">
+                <p
+                  className="text-2xl select-none cursor-pointer hover:text-btn"
+                  onClick={handleOptions}
+                >
+                  •••
+                </p>
+                {isOpenModal && (
+                  <div className="absolute z-1 rounded bg-white right-0 w-41">
+                    <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
+                    <div className="border border-gray-200 rounded shadow bg-white w-41">
+                      <div
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={handleEditClick}
+                      >
+                        <div className="flex">
+                          <img
+                            src="/images/edit.png"
+                            alt="Edit"
+                            className="w-5 h-5 mr-2"
+                          />
+                          <p>Edit Post</p>
                         </div>
                       </div>
-                    )}
+                      <div
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      >
+                        <DeletePostComponent PostId={PostID}/>
+                      </div>
+                    </div>
                   </div>
                 )}
+              </div>
+            )}
               </div>
               <p className="pb-2 text-sm text-gray-500">{formattedDate}</p>
 
