@@ -7,6 +7,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const { setUserId } = useAuthStore();
 
   const navigate = useNavigate();
 
@@ -15,7 +16,6 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    const { setUserId } = useAuthStore.getState();
 
     const response = await fetch("http://localhost:5175/api/user/login", {
       method: "POST",

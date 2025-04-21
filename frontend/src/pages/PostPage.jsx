@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
 import useAuth from "../hook/useAuth";
 import VideoThumbnail from "../components/VideoThumbnail";
+import ShareLinkComponent from "../components/ShareLinkComponent";
 
 const PostPage = () => {
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${id}`;
   const tooltipLikeId = `tooltip-like-${id}`;
   const textareaRef = useRef(null);
+  const navigate = useNavigate();
 
-  const [isOpen, setIsOpen] = useState(false);
   const [comment, setComment] = useState("");
 
   //For Modal
@@ -32,15 +33,6 @@ const PostPage = () => {
   const [sameUser, setSameUser] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
   const [isImg, setIsImg] = useState(false);
-
-  const handleShareLink = () => {
-    navigator.clipboard.writeText(
-      `${window.location.href}${username}/status/${id}`
-    );
-    setIsOpen(true);
-
-    setTimeout(() => setIsOpen(false), 5000);
-  };
 
   useAuth();
 
@@ -235,7 +227,21 @@ const PostPage = () => {
     setAddPost("");
   };
 
-  const handleDeletePost = () => {};
+  const handleDeletePost = async() => {
+    try {
+      const response = await fetch("http://localhost:5175/api/post/delete", {
+        credentials: "include"
+      });
+
+      const data = await response.json();
+
+      if(response.ok){
+        navigate("/");
+      }
+    } catch(e) {
+      console.error(e);
+    }
+  };
 
   // dynamically changes the height of textarea
   const handlePostChange = (e) => {
@@ -274,7 +280,7 @@ const PostPage = () => {
       setPostFile(addPost);
       setPostTitle(modalPostTitle);
     }
-    
+
     setIsImg(isImgModal);
     setIsVideo(isVideoModal);
     setAddPost("");
@@ -327,7 +333,7 @@ const PostPage = () => {
                         <div className="flex">
                           <img
                             src="/images/edit.png"
-                            alt="Delete"
+                            alt="Edit"
                             className="w-5 h-5 mr-2"
                           />
                           <p>Edit Post</p>
@@ -354,7 +360,7 @@ const PostPage = () => {
           </div>
           {post?.postTitle && <p className="text-justify pb-3">{postTitle}</p>}
           {postFile && isImg && (
-            <img src={postFile} className="w-full rounded-mg" />
+            <img src={postFile} className="w-full border border-gray-200 rounded-md" />
           )}
           {postFile && isVideo && (
             <VideoThumbnail
@@ -389,13 +395,7 @@ const PostPage = () => {
               <p>{likeAmount}</p>
             </div>
             {/* Share Link */}
-            <div
-              className="flex select-none cursor-pointer"
-              onClick={handleShareLink}
-            >
-              <img src="/images/share.png" className="w-g h-6 mr-1" />
-              <p>Share</p>
-            </div>
+            <ShareLinkComponent />
           </div>
           <hr />
           {/* Post comment block */}
@@ -427,15 +427,6 @@ const PostPage = () => {
           <hr className="pb-3" />
         </div>
       </div>
-
-      {/* Modal for sharing link */}
-      {isOpen && (
-        <div className="z-50 bottom-4 left-1/2 transform -translate-x-1/2 text-center w-60 fixed">
-          <p className="text-white bg-btn py-2 rounded-md">
-            Copied to clickboard
-          </p>
-        </div>
-      )}
 
       {/* Tooltip for Comment */}
       <div
@@ -493,7 +484,7 @@ const PostPage = () => {
                 </div>
                 <p className="text-xl">{username}</p>
               </div>
-              <div className="block pr-3 py-1 overflow-y-auto max-h-[55vh]">
+              <div className="block py-1 overflow-y-auto max-h-[55vh]">
                 <textarea
                   ref={textareaRef}
                   className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
@@ -506,7 +497,7 @@ const PostPage = () => {
                   <div className="relative">
                     <img
                       src={addPost}
-                      className="h-full w-full flex justify-center"
+                      className="h-full w-full flex justify-center border border-gray-200 rounded-md"
                     />
                     <img
                       className="absolute top-2 right-3 w-7 h-7 cursor-pointer"

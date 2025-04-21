@@ -3,8 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
+import useAuthStore from "../stores/useAuthStore";
 
 const HomePage = () => {
+  const { userId } = useAuthStore();
+
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef(null);
 
@@ -32,49 +35,53 @@ const HomePage = () => {
 
   useAuth();
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch("http://localhost:5175/api/user/", {
-          credentials: "include",
-        });
+  useEffect(
+    () => {
+      const getUser = async () => {
+        try {
+          const response = await fetch("http://localhost:5175/api/user/", {
+            credentials: "include",
+          });
 
-        const data = await response.json();
+          const data = await response.json();
 
-        if (response.ok) {
-          if (data.profile.url == null) {
-            navigate(`/setup/${data.username}`);
-            return;
+          if (response.ok) {
+            if (data.profile.url == null) {
+              navigate(`/setup/${data.username}`);
+              return;
+            }
+
+            setUsername(data.username);
+            setProfilePicture(data.profile.url);
           }
-
-          setUsername(data.username);
-          setProfilePicture(data.profile.url);
+        } catch (error) {
+          console.error("Session check failed", error);
         }
-      } catch (error) {
-        console.error("Session check failed", error);
-      }
-    };
+      };
 
-    const getPosts = async () => {
-      try {
-        const response = await fetch("http://localhost:5175/api/post/", {
-          credentials: "include",
-        });
+      const getPosts = async () => {
+        try {
+          const response = await fetch("http://localhost:5175/api/post/", {
+            credentials: "include",
+          });
 
-        const data = await response.json();
+          const data = await response.json();
 
-        if (response.ok) {
-          setPosts(data);
+          if (response.ok) {
+            setPosts(data);
+          }
+        } catch (e) {
+          console.error(e);
         }
-      } catch (e) {
-        console.error(e);
-      }
-    };
+      };
 
-    document.documentElement.scrollTop = 0;
-    getUser();
-    getPosts();
-  }, [], [uploaded]);
+      document.documentElement.scrollTop = 0;
+      getUser();
+      getPosts();
+    },
+    [],
+    [uploaded]
+  );
 
   // dynamically changes the height of textarea
   const handlePostChange = (e) => {
@@ -206,6 +213,7 @@ const HomePage = () => {
                 ProfilePic={item.userId.profilePic.url}
                 LikeAmount={item.likeCount}
                 DateUpload={item.createdAt}
+                SameUser={item.same}
                 key={index}
               />
             ))}
@@ -238,7 +246,7 @@ const HomePage = () => {
                     </div>
                     <p className="text-xl">{username}</p>
                   </div>
-                  <div className="block pr-3 py-1 overflow-y-auto max-h-[55vh]">
+                  <div className="block py-1 overflow-y-auto max-h-[55vh]">
                     <textarea
                       ref={textareaRef}
                       className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
@@ -251,7 +259,7 @@ const HomePage = () => {
                       <div className="relative">
                         <img
                           src={addPost}
-                          className="h-full w-full flex justify-center"
+                          className="h-full w-full flex justify-center border border-gray-200 rounded-md"
                         />
                         <img
                           className="absolute top-2 right-3 w-7 h-7 cursor-pointer"

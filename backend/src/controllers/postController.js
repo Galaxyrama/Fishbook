@@ -67,12 +67,19 @@ export const editPost = async (req, res) => {
 };
 
 export const getPosts = async (req, res) => {
+  const userId = req.session.userID;
+
   try {
     const posts = await Post.find({})
       .populate("userId", "username profilePic.url")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json(posts);
+    const postsWithSameUser = posts.map((post) => {
+      const isSameUser = post.userId._id.toString() === userId;
+      return { ...post.toObject(), same: isSameUser };
+    });
+
+    return res.status(200).json(postsWithSameUser);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Couldn't get posts" });
@@ -167,5 +174,17 @@ export const likePost = async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't like the post" });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    await Post.findByIdAndDelete(postId);
+
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't delete the post" });
   }
 };
