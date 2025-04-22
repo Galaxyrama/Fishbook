@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
-const DeletePostComponent = ({ PostId, Location }) => {
+const DeletePostComponent = ({ PostId, GoToHome }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
@@ -33,7 +33,8 @@ const DeletePostComponent = ({ PostId, Location }) => {
 
       if (response.ok) {
         location.reload();
-        navigate("/");
+
+        if (GoToHome) navigate("/");
       }
     } catch (e) {
       console.error(e);

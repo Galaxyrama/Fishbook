@@ -7,14 +7,12 @@ import VideoThumbnail from "../components/VideoThumbnail";
 import ShareLinkComponent from "../components/ShareLinkComponent";
 import DeletePostComponent from "../components/DeletePostComponent";
 import EditPostComponent from "../components/EditPostComponent";
+import ReplyComponent from "../components/ReplyComponent";
 
 const PostPage = () => {
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${id}`;
   const tooltipLikeId = `tooltip-like-${id}`;
-  const textareaRef = useRef(null);
-
-  const [comment, setComment] = useState("");
 
   //For Modal
   const [isEdit, setIsEdit] = useState(false);
@@ -62,10 +60,7 @@ const PostPage = () => {
       const getPost = async () => {
         try {
           const response = await fetch(
-            `http://localhost:5175/api/post/status/${id}`,
-            {
-              credentials: "include",
-            }
+            `http://localhost:5175/api/post/status/${id}`
           );
 
           const data = await response.json();
@@ -105,17 +100,6 @@ const PostPage = () => {
       return;
     }
   }, [post]);
-
-  // dynamically changes the height of textarea
-  const handleCommentChange = (e) => {
-    setComment(e.target.value);
-
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  };
 
   const formattedUpload = (d) => {
     const date = new Date(d);
@@ -219,7 +203,7 @@ const PostPage = () => {
                         </div>
                       </div>
                       <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <DeletePostComponent PostId={id} />
+                        <DeletePostComponent PostId={id} GoToHome={true} />
                       </div>
                     </div>
                   </div>
@@ -270,32 +254,9 @@ const PostPage = () => {
             <ShareLinkComponent />
           </div>
           <hr />
-          {/* Post comment block */}
-          <div className="flex py-3">
-            <div className="w-12 flex-shrink-0">
-              <Link to={`/profile/${username}`}>
-                <img
-                  src={post?.userId?.profilePic.url}
-                  className="w-12 h-12 rounded-full inline-block border-1 border-gray-200"
-                />
-              </Link>
-            </div>
-            <textarea
-              ref={textareaRef}
-              className={`focus:ring-0 pt-4 border-0 w-full resize-none h-auto`}
-              placeholder="Post your comment"
-              onChange={handleCommentChange}
-              value={comment}
-              rows={1}
-            />
-            <div className="pt-2">
-              <button className="inline-block bg-btn h-10 text-white px-5 rounded-full cursor-pointer">
-                Reply
-              </button>
-            </div>
-          </div>
-          <CommentComponent User={"User2"} DateUpload={Date.now()} />
-          <CommentComponent User={"User3"} DateUpload={Date.now()} />
+
+          {/*  Reply or Comment */}
+          <ReplyComponent />
           <hr className="pb-3" />
         </div>
       </div>

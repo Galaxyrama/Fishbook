@@ -91,6 +91,7 @@ export const getPosts = async (req, res) => {
 
 export const getUserPosts = async (req, res) => {
   const { username } = req.params;
+  const userId = req.session.userID;
 
   try {
     const user = await User.findOne({ username }).exec();
@@ -99,11 +100,18 @@ export const getUserPosts = async (req, res) => {
       return res.status(400).json({ error: "Couldn't find the user" });
     }
 
-    const posts = await Post.find({ userId: user._id }).sort({
-      createdAt: -1,
-    });
+    const posts = await Post.find({ userId: user._id })
+      .populate("userId", "username profilePic.url")
+      .sort({
+        createdAt: -1,
+      });
 
-    return res.status(200).json(posts);
+      const postsWithSameUser = posts.map((post) => {
+        const isSameUser = post.userId._id.toString() === userId;
+        return { ...post.toObject(), same: isSameUser };
+      });
+
+    return res.status(200).json(postsWithSameUser);
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Couldn't get the user's posts" });

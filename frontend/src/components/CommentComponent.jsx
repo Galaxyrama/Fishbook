@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const CommentComponent = ({ User, Img, DateUpload, ProfilePic }) => {
-  const tooltipCommentId = `tooltip-comment-${User}-${DateUpload}`;
-  const tooltipLikeId = `tooltip-like-${User}-${DateUpload}`;
+const CommentComponent = ({ Comment }) => {
+  const tooltipCommentId = `tooltip-comment-${Comment.userId.username}`;
+  const tooltipLikeId = `tooltip-like-${Comment.userId.username}`;
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -57,10 +57,10 @@ const CommentComponent = ({ User, Img, DateUpload, ProfilePic }) => {
           <p className="text-sm text-gray-500">{DateUpload}</p>
           <Link to={`/${User}/comment/1`}>
             <p className="text-justify mt-2 cursor-pointer">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fuga magni
-              quia saepe harum accusantium mollitia explicabo eaque facere, sequi
-              consequuntur sunt officia expedita! Quasi qui asperiores, optio
-              distinctio in deserunt?
+              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Fuga
+              magni quia saepe harum accusantium mollitia explicabo eaque
+              facere, sequi consequuntur sunt officia expedita! Quasi qui
+              asperiores, optio distinctio in deserunt?
             </p>
           </Link>
 

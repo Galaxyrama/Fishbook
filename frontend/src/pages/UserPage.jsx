@@ -182,18 +182,11 @@ const UserPage = () => {
       <hr className="my-5 border-gray-600" />
 
       {posts &&
-        posts.map((item, index) => (
+        posts.map((post) => (
           <Post
-            PostID={item._id}
-            User={username}
-            PostTitle={item.postTitle}
-            File={item.postImage.url}
-            CommentAmount={item.commentCount}
-            ProfilePic={profilePic}
-            LikeAmount={item.likeCount}
-            DateUpload={item.createdAt}
-            SameUser={true}
-            key={index}
+            Post={post}
+            Home={false}
+            key={post._id}
           />
         ))}
     </div>

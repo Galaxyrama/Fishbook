@@ -6,7 +6,7 @@ import ShareLinkComponent from "./ShareLinkComponent";
 import DeletePostComponent from "./DeletePostComponent";
 import EditPostComponent from "./EditPostComponent";
 
-const Post = ({ Post }) => {
+const Post = ({ Post, Home }) => {
   const date = new Date(Post.createdAt);
   const tooltipCommentId = `tooltip-comment-${Post._id}`;
   const tooltipLikeId = `tooltip-like-${Post._id}`;
@@ -141,7 +141,7 @@ const Post = ({ Post }) => {
             <div className="w-12 flex-shrink-0">
               <Link to={`/profile/${Post.userId.username}`}>
                 <img
-                  src={Post.userId.profilePic.url}
+                  src={Post?.userId?.profilePic?.url}
                   className="w-12 h-12 rounded-4xl mr-12 cursor-pointer border-1 border-gray-200"
                 />
               </Link>
@@ -179,7 +179,7 @@ const Post = ({ Post }) => {
                             </div>
                           </div>
                           <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <DeletePostComponent PostId={Post._id} />
+                            <DeletePostComponent PostId={Post._id} GoToHome={Home}/>
                           </div>
                         </div>
                       </div>

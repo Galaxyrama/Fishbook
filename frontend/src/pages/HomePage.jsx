@@ -28,7 +28,7 @@ const HomePage = () => {
     setIsOpen(true);
     document.body.style.overflow = "hidden";
   };
-  
+
   const closeModal = () => {
     setIsOpen(false);
     document.body.style.overflow = "auto";
@@ -205,10 +205,7 @@ const HomePage = () => {
 
           {posts &&
             posts.map((post) => (
-              <Post
-                Post={post}
-                key={post._id}
-              />
+              <Post Post={post} Home={true} key={post._id} />
             ))}
 
           {/* Modal for Create Post */}
@@ -245,6 +242,7 @@ const HomePage = () => {
                       className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
                       placeholder={`What's swimming through your mind, ${username}?`}
                       onChange={handlePostChange}
+                      maxLength={1500}
                       rows={1}
                       value={postTitle}
                     />
@@ -270,8 +268,9 @@ const HomePage = () => {
                         <img
                           className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
                           src="/images/exit-btn.png"
+                          alt="Remove"
                           onClick={handlePostRemove}
-                        ></img>
+                        />
                       </div>
                     )}
                   </div>
@@ -283,10 +282,11 @@ const HomePage = () => {
 
                     {/* Image Upload */}
                     <div className="flex gap-3">
-                      <label htmlFor="imgUpload" className="cursor-pointer">
+                      <label htmlFor="imgUpload">
                         <img
                           src="/images/photo.png"
                           className="w-10 h-10 cursor-pointer"
+                          alt="Photo"
                         />
                       </label>
                       <input
@@ -300,10 +300,11 @@ const HomePage = () => {
                       />
 
                       {/* Gif upload */}
-                      <label htmlFor="gifUpload" className="cursor-pointer">
+                      <label htmlFor="gifUpload">
                         <img
                           src="/images/gif.png"
                           className="w-10 h-10 cursor-pointer"
+                          alt="Gif"
                         />
                       </label>
                       <input
@@ -320,7 +321,8 @@ const HomePage = () => {
                       <label htmlFor="videoUpload">
                         <img
                           src="/images/video.png"
-                          className="w-10 h-10 cursor-pointer h"
+                          className="w-10 h-10 cursor-pointer"
+                          alt="Video"
                         />
                       </label>
                       <input
