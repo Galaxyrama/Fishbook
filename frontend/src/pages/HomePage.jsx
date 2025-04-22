@@ -28,6 +28,7 @@ const HomePage = () => {
     setIsOpen(true);
     document.body.style.overflow = "hidden";
   };
+  
   const closeModal = () => {
     setIsOpen(false);
     document.body.style.overflow = "auto";
@@ -203,18 +204,10 @@ const HomePage = () => {
           </div>
 
           {posts &&
-            posts.map((item, index) => (
+            posts.map((post) => (
               <Post
-                PostID={item._id}
-                User={item.userId.username}
-                PostTitle={item.postTitle}
-                File={item.postImage.url}
-                CommentAmount={item.commentCount}
-                ProfilePic={item.userId.profilePic.url}
-                LikeAmount={item.likeCount}
-                DateUpload={item.createdAt}
-                SameUser={item.same}
-                key={index}
+                Post={post}
+                key={post._id}
               />
             ))}
 

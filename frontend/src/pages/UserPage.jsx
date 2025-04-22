@@ -192,7 +192,7 @@ const UserPage = () => {
             ProfilePic={profilePic}
             LikeAmount={item.likeCount}
             DateUpload={item.createdAt}
-            SameUser={item.same}
+            SameUser={true}
             key={index}
           />
         ))}

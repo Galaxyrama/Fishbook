@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
-const DeletePostComponent = ({ PostId }) => {
+const DeletePostComponent = ({ PostId, Location }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const DeletePostComponent = ({ PostId }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  });
+  }, []);
 
   const handleDeletePost = async () => {
     try {
@@ -32,8 +32,8 @@ const DeletePostComponent = ({ PostId }) => {
       );
 
       if (response.ok) {
-        navigate("/");
         location.reload();
+        navigate("/");
       }
     } catch (e) {
       console.error(e);

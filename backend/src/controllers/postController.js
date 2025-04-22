@@ -29,7 +29,7 @@ export const uploadPost = async (req, res) => {
 };
 
 export const editPost = async (req, res) => {
-  const { modalPostTitle, postImage } = req.body;
+  const { postTitle, postImage } = req.body;
   const { postId } = req.params;
 
   try {
@@ -38,14 +38,17 @@ export const editPost = async (req, res) => {
     const post = await Post.findById(postId).exec();
 
     const updateFields = {
-      postTitle: modalPostTitle,
+      postTitle,
     };
 
-    if (postImage && post?.postImage?.publicId) {
+    //Uploads image if new image or video is provided
+    if (postImage) {
       const result = await uploadPostFile(postImage, "Fishbook");
       uploadImage = result;
       updateFields.postImage = uploadImage;
-      await deleteFile(post?.postImage?.publicId, "Fishbook");
+
+      if (post?.postImage?.publicId)
+        await deleteFile(post?.postImage?.publicId, "Fishbook");
     }
 
     if (!postImage && post?.postImage?.publicId) {
@@ -113,7 +116,7 @@ export const getPost = async (req, res) => {
 
   try {
     const post = await Post.findById(postId)
-      .populate("userId", "profilePic.url")
+      .populate("userId", "username profilePic.url")
       .exec();
 
     let sameUser = false;

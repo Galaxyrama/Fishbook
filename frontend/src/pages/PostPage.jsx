@@ -6,23 +6,19 @@ import useAuth from "../hook/useAuth";
 import VideoThumbnail from "../components/VideoThumbnail";
 import ShareLinkComponent from "../components/ShareLinkComponent";
 import DeletePostComponent from "../components/DeletePostComponent";
+import EditPostComponent from "../components/EditPostComponent";
 
 const PostPage = () => {
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${id}`;
   const tooltipLikeId = `tooltip-like-${id}`;
   const textareaRef = useRef(null);
-  const navigate = useNavigate();
 
   const [comment, setComment] = useState("");
 
   //For Modal
   const [isEdit, setIsEdit] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [addPost, setAddPost] = useState();
-  const [isImgModal, setIsImgModal] = useState();
-  const [isVideoModal, setIsVideoModal] = useState();
-  const [modalPostTitle, setModalPostTitle] = useState();
 
   //For Post
   const [post, setPost] = useState();
@@ -99,23 +95,20 @@ const PostPage = () => {
     setPostTitle(post?.postTitle);
     setPostFile(post?.postImage?.url);
 
-    if (post?.postImage?.url) {
-      if (post?.postImage?.url.includes("video")) {
-        setIsVideo(true);
-        setIsImg(false);
-        return;
-      } else {
-        setIsImg(true);
-        setIsVideo(false);
-        return;
-      }
+    if (post?.postImage?.url && post?.postImage?.url.includes("video")) {
+      setIsVideo(true);
+      setIsImg(false);
+      return;
+    } else {
+      setIsImg(true);
+      setIsVideo(false);
+      return;
     }
   }, [post]);
 
   // dynamically changes the height of textarea
   const handleCommentChange = (e) => {
-    const value = e.target.value;
-    setComment(value);
+    setComment(e.target.value);
 
     const textarea = textareaRef.current;
     if (textarea) {
@@ -163,26 +156,7 @@ const PostPage = () => {
     }
   };
 
-  //converts the blob url into a base64 string
-  const convertBlobToBase64 = async (blobUrl) => {
-    const response = await fetch(blobUrl);
-    const blob = await response.blob();
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        resolve(reader.result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  };
-
   const handleEditClick = () => {
-    setAddPost(postFile);
-    setIsImgModal(isImg);
-    setIsVideoModal(isVideo);
-    setModalPostTitle(postTitle);
     setIsEdit(true);
     setIsOpenModal(false);
     document.body.style.overflow = "hidden";
@@ -191,86 +165,6 @@ const PostPage = () => {
   const closeModal = () => {
     setIsEdit(false);
     document.body.style.overflow = "auto";
-  };
-
-  const handleAddPost = (e) => {
-    const addFile = e.target.files[0];
-    const maxSizeInMB = 50;
-    const maxSizeInByte = maxSizeInMB * 1024 * 1024;
-
-    if (!addFile) return;
-
-    //sets the largest file size to 50mb
-    if (addFile.size > maxSizeInByte) {
-      alert("File is too large. Maximum allowed size is 50mb");
-      return;
-    }
-
-    const mimeType = addFile.type;
-
-    if (mimeType.startsWith("image/")) {
-      setIsImgModal(true);
-      setIsVideoModal(false);
-    } else if (mimeType.startsWith("video/")) {
-      setIsImgModal(false);
-      setIsVideoModal(true);
-    } else {
-      console.log("Unsupported file type");
-    }
-
-    const url = URL.createObjectURL(addFile);
-    setAddPost(url);
-  };
-
-  const handlePostRemove = () => {
-    setIsImgModal(false);
-    setIsVideoModal(false);
-    setAddPost("");
-  };
-
-  // dynamically changes the height of textarea
-  const handlePostChange = (e) => {
-    const value = e.target.value;
-    setModalPostTitle(value);
-
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  };
-
-  const handlePostUpload = async () => {
-    if (!addPost && !modalPostTitle) return;
-
-    let base64 = null;
-
-    if (addPost) {
-      base64 = await convertBlobToBase64(addPost);
-    }
-
-    const response = await fetch(`http://localhost:5175/api/post/edit/${id}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        modalPostTitle,
-        postImage: base64,
-      }),
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      console.log(data);
-      setPostFile(addPost);
-      setPostTitle(modalPostTitle);
-    }
-
-    setIsImg(isImgModal);
-    setIsVideo(isVideoModal);
-    setAddPost("");
-    setModalPostTitle("");
-    closeModal();
   };
 
   return (
@@ -324,10 +218,8 @@ const PostPage = () => {
                           <p>Edit Post</p>
                         </div>
                       </div>
-                      <div
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      >
-                        <DeletePostComponent PostId={id}/>
+                      <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        <DeletePostComponent PostId={id} />
                       </div>
                     </div>
                   </div>
@@ -337,7 +229,10 @@ const PostPage = () => {
           </div>
           {post?.postTitle && <p className="text-justify pb-3">{postTitle}</p>}
           {postFile && isImg && (
-            <img src={postFile} className="w-full border border-gray-200 rounded-md" />
+            <img
+              src={postFile}
+              className="w-full border border-gray-200 rounded-md"
+            />
           )}
           {postFile && isVideo && (
             <VideoThumbnail
@@ -435,137 +330,12 @@ const PostPage = () => {
 
       {/* Modal for Edit Post */}
       {isEdit && (
-        <div className="flex justify-center items-center px-3 pt-40 pb-8 fixed inset-0 bg-gray-500/50 overflow-y-auto">
-          <div className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col">
-            {/* Header */}
-            <div className="w-full relative text-center justify-center py-2">
-              <h1 className="text-2xl">Edit Post</h1>
-              <img
-                src="/images/exit-btn.png"
-                onClick={closeModal}
-                className="w-7 h-7 absolute right-3 top-2.5
-                              transform -translatee-y-1/2
-                              pointer-events-auto cursor-pointer"
-              />
-            </div>
-            <hr className="py-1 border-[#ACACAC]" />
-
-            {/* Content */}
-            <div className="block px-3 py-1">
-              <div className="flex items-center gap-2">
-                <div className="w-12 flex-shrink-0">
-                  <img
-                    src={post?.userId?.profilePic?.url}
-                    className="w-12 h-12 rounded-full border-1 border-gray-200"
-                  />
-                </div>
-                <p className="text-xl">{username}</p>
-              </div>
-              <div className="block py-1 overflow-y-auto max-h-[55vh]">
-                <textarea
-                  ref={textareaRef}
-                  className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
-                  placeholder={`Edit the post here`}
-                  onChange={handlePostChange}
-                  rows={1}
-                  value={modalPostTitle}
-                />
-                {addPost && isImgModal && (
-                  <div className="relative">
-                    <img
-                      src={addPost}
-                      className="h-full w-full flex justify-center border border-gray-200 rounded-md"
-                    />
-                    <img
-                      className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                      src="/images/exit-btn.png"
-                      onClick={handlePostRemove}
-                    ></img>
-                  </div>
-                )}
-                {addPost && isVideoModal && (
-                  <div className="relative">
-                    <video
-                      src={addPost}
-                      className="h-full flex justify-center"
-                    />
-                    <img
-                      className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                      src="/images/exit-btn.png"
-                      onClick={handlePostRemove}
-                    ></img>
-                  </div>
-                )}
-              </div>
-              <div
-                className="flex border-2 border-gray-300 items-center 
-                  justify-between py-2 px-3 my-2 rounded-xl"
-              >
-                <p>Add to your Post</p>
-
-                {/* Image Upload */}
-                <div className="flex gap-3">
-                  <label htmlFor="imgUpload" className="cursor-pointer">
-                    <img
-                      src="/images/photo.png"
-                      className="w-10 h-10 cursor-pointer"
-                    />
-                  </label>
-                  <input
-                    type="file"
-                    className="text-white py-2 px-5 
-                            bg-btn rounded-xl cursor-pointer
-                            text-[0px] hidden"
-                    id="imgUpload"
-                    accept="image/png, image/jpeg"
-                    onChange={handleAddPost}
-                  />
-
-                  {/* Gif upload */}
-                  <label htmlFor="gifUpload" className="cursor-pointer">
-                    <img
-                      src="/images/gif.png"
-                      className="w-10 h-10 cursor-pointer"
-                    />
-                  </label>
-                  <input
-                    type="file"
-                    className="text-white py-2 px-5 
-                            bg-btn rounded-xl cursor-pointer
-                            text-[0px] hidden"
-                    id="gifUpload"
-                    accept="image/gif"
-                    onChange={handleAddPost}
-                  />
-
-                  {/* Video upload */}
-                  <label htmlFor="videoUpload">
-                    <img
-                      src="/images/video.png"
-                      className="w-10 h-10 cursor-pointer h"
-                    />
-                  </label>
-                  <input
-                    type="file"
-                    className="text-white py-2 px-5 
-                            bg-btn rounded-xl cursor-pointer
-                            text-[0px] hidden"
-                    id="videoUpload"
-                    accept="video/mp4"
-                    onChange={handleAddPost}
-                  />
-                </div>
-              </div>
-              <button
-                onClick={handlePostUpload}
-                className="cursor-pointer w-full bg-btn text-white rounded-xl
-                                py-2 mb-2"
-              >
-                Post
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditPostComponent
+          post={post}
+          onClose={closeModal}
+          isImg={isImg}
+          isVideo={isVideo}
+        />
       )}
     </div>
   );
