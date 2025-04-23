@@ -1,6 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
 import "dotenv/config";
-import path from "path";
 
 // Configuration
 cloudinary.config({
@@ -10,22 +9,11 @@ cloudinary.config({
 });
 
 // Upload the Profile
-const uploadProfile = async (path, folder = "Profile") => {
-  try {
-    const data = await cloudinary.uploader.upload(path, { folder: folder });
-    return { url: data.secure_url, publicId: data.public_id };
-  } catch (err) {
-    console.log(err);
-    throw err;
-  }
-};
-
-//Uploads the Post File
-const uploadPostFile = async (path, folder = "Fishbook") => {
+const uploadFile = async (path, folder, resourceType) => {
   try {
     const data = await cloudinary.uploader.upload(path, {
       folder: folder,
-      resource_type: "auto",
+      resource_type: resourceType,
     });
     return { url: data.secure_url, publicId: data.public_id };
   } catch (err) {
@@ -46,4 +34,4 @@ const deleteFile = async (path, folder) => {
   }
 };
 
-export { uploadProfile, uploadPostFile, deleteFile };
+export { uploadFile, deleteFile };

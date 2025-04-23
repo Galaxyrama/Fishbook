@@ -70,7 +70,7 @@ const Post = ({ Post, Home }) => {
         const data = await response.json();
 
         if (response.ok) {
-          setHasLiked(data.liked);
+          setHasLiked(data);
         }
       } catch (e) {
         console.error(e);

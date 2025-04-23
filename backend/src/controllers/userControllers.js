@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import { User } from "../models/User.js";
 import { Follow } from "../models/Follow.js";
-import { uploadProfile, deleteFile } from "../services/cloudinary.js";
+import { uploadFile, deleteFile } from "../services/cloudinary.js";
 
 export const logIn = async (req, res, next) => {
   try {
@@ -196,7 +196,7 @@ export const editUser = async (req, res) => {
     let imageData = {};
 
     if (image && !image.startsWith("https://res.cloudinary.com/")) {
-      const results = await uploadProfile(image, "Profile");
+      const results = await uploadFile(image, "Profile", "image");
       imageData = results;
       updateFields.profilePic = imageData;
 

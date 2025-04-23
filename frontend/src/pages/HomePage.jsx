@@ -3,11 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
-import useAuthStore from "../stores/useAuthStore";
 
 const HomePage = () => {
-  const { userId } = useAuthStore();
-
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef(null);
 

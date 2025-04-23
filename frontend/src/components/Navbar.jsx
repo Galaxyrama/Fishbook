@@ -5,6 +5,7 @@ import useAuthStore from '../stores/useAuthStore'
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { clearUserId } = useAuthStore();
 
   //Makes it so that the tooltip is consistent
   useEffect(() => {
@@ -17,8 +18,6 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async() => {
-    const { clearUserId } = useAuthStore.getState();
-
     try {
       const response = await fetch("http://localhost:5175/api/user/logout", {
         credentials: 'include'

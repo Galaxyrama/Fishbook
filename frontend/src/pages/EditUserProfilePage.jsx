@@ -6,6 +6,11 @@ import getCroppedImg from "../utils/cropImage.js";
 import useAuth from "../hook/useAuth.js";
 
 const EditUserProfilePage = () => {
+  const { username } = useParams();
+  const navigate = useNavigate();
+
+  useAuth();
+
   const [currentUsername, setUsername] = useState("");
   const [description, setDescription] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -26,11 +31,6 @@ const EditUserProfilePage = () => {
   const [zoom, setZoom] = useState(1);
 
   const [countries, setCountries] = useState([]);
-
-  const { username } = useParams();
-  const navigate = useNavigate();
-
-  useAuth();
 
   useEffect(() => {
     const getCountries = async () => {
@@ -90,7 +90,7 @@ const EditUserProfilePage = () => {
       currentLocation,
     };
 
-    if(profilePicture !== originalProfilePicture) {
+    if (profilePicture !== originalProfilePicture) {
       bodyData.image = profilePicture;
     }
 
@@ -135,7 +135,7 @@ const EditUserProfilePage = () => {
       reader.onloadend = () => {
         resolve(reader.result);
       };
-      
+
       reader.onerror = reject;
       reader.readAsDataURL(blob);
     });
@@ -152,7 +152,6 @@ const EditUserProfilePage = () => {
 
       const base64Image = await convertBlobToBase64(croppedImage);
       setProfilePicture(base64Image);
-      console.log(base64Image);
 
       setOpenCropper(false);
     } catch (e) {
@@ -178,11 +177,7 @@ const EditUserProfilePage = () => {
             <div className="w-40 flex-shrink-0">
               <label htmlFor="fileUpload" className="cursor-pointer">
                 <img
-                  src={
-                    profilePicture
-                      ? profilePicture
-                      : originalProfilePicture
-                  }
+                  src={profilePicture ? profilePicture : originalProfilePicture}
                   className="h-40 w-40 rounded-full justify-center cursor-pointer"
                   htmlFor="fileUpload"
                 />

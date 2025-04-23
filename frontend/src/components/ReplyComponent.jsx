@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 
-const ReplyComponent = () => {
+const ReplyComponent = ({ type, commentedOnId }) => {
   const textareaRef = useRef(null);
 
   const [currentUser, setCurrentUser] = useState([]);
@@ -43,6 +43,88 @@ const ReplyComponent = () => {
     }
   };
 
+  const handleAddPost = (e) => {
+    const addFile = e.target.files[0];
+    const maxSizeInMb = 50 * 1024 * 1024;
+
+    console.log(addFile);
+
+    if (!addFile) return;
+
+    //sets the largest file size to 50mb
+    if (addFile.size > maxSizeInMb) {
+      alert("File is too large. Maximum allowed size is 50mb");
+      return;
+    }
+
+    const mimeType = addFile.type;
+
+    if (mimeType.startsWith("image/")) {
+      setIsImgReply(true);
+      setIsVideoReply(false);
+    } else if (mimeType.startsWith("video/")) {
+      setIsImgReply(false);
+      setIsVideoReply(true);
+    } else {
+      console.log("Unsupported file type");
+    }
+
+    const url = URL.createObjectURL(addFile);
+    setFileReply(url);
+  };
+
+  //converts the blob url into a base64 string
+  const convertBlobToBase64 = async (blobUrl) => {
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const handleRemoveFile = () => {
+    setFileReply("");
+    setIsImgReply(false);
+    setIsVideoReply(false);
+  };
+
+  const handleCommentUpload = async () => {
+    if (!fileReply && !comment) return;
+
+    let base64 = null;
+
+    if (fileReply) {
+      base64 = await convertBlobToBase64(fileReply);
+    }
+
+    const response = await fetch(
+      `http://localhost:5175/api/comment/${type}/upload`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commentTitle: comment,
+          commentFile: base64,
+          commentedOnId,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log(data);
+      location.reload();
+    }
+  };
+
   return (
     <div>
       {/* Post comment block */}
@@ -59,35 +141,45 @@ const ReplyComponent = () => {
           <textarea
             ref={textareaRef}
             className={`focus:ring-0 pt-4 border-0 w-full resize-none h-auto`}
-            placeholder="Post your reply"
+            placeholder="Post your comment"
             onChange={handleCommentChange}
             onClick={() => setIsCommentClicked(true)}
             value={comment}
             maxLength={1500}
             rows={1}
           />
-          {fileReply &&
-            isImgReply(
-              <div className="relative mr-1">
-                <img src={fileReply} alt="Photo" />
-                <img
-                  className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                  src="/images/exit-btn.png"
-                  alt="Remove"
-                />
-              </div>
-            )}
-          {fileReply &&
-            isVideoReply(
-              <div className="relative mr-1">
-                <video src={fileReply} alt="Video" />
-                <img
-                  className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                  src="/images/exit-btn.png"
-                  alt="Remove"
-                />
-              </div>
-            )}
+          {fileReply && isImgReply && (
+            <div className="relative mr-1">
+              <img
+                src={fileReply}
+                alt="Photo"
+                className="h-full flex w-full my-2 ml-2 justify-center 
+                            border border-gray-200 rounded-sm"
+              />
+              <img
+                className="absolute top-2 right-1 w-7 h-7 cursor-pointer"
+                src="/images/exit-btn.png"
+                alt="Remove"
+                onClick={handleRemoveFile}
+              />
+            </div>
+          )}
+          {fileReply && isVideoReply && (
+            <div className="relative mr-1">
+              <video
+                src={fileReply}
+                alt="Video"
+                className="h-full flex w-full my-2 ml-2 justify-center 
+                            border border-gray-200 rounded-sm"
+              />
+              <img
+                className="absolute top-2 right-3 w-7 h-7 py-5 cursor-pointer"
+                src="/images/exit-btn.png"
+                alt="Remove"
+                onClick={handleRemoveFile}
+              />
+            </div>
+          )}
           {isCommentClicked && (
             <div className="flex gap-3 float-right">
               {/* Add Image */}
@@ -106,6 +198,7 @@ const ReplyComponent = () => {
                       text-[0px] hidden"
                 id="imgUpload"
                 accept="image/png, image/jpeg"
+                onChange={handleAddPost}
               />
 
               {/* Add Gif */}
@@ -124,6 +217,7 @@ const ReplyComponent = () => {
                       text-[0px] hidden"
                 id="gifUpload"
                 accept="image/gif"
+                onChange={handleAddPost}
               />
 
               {/* Video upload */}
@@ -142,13 +236,17 @@ const ReplyComponent = () => {
                       text-[0px] hidden"
                 id="videoUpload"
                 accept="video/mp4"
+                onChange={handleAddPost}
               />
             </div>
           )}
         </div>
         <div className="pt-2">
-          <button className="inline-block bg-btn h-10 text-white px-5 rounded-full cursor-pointer">
-            Reply
+          <button
+            className="inline-block bg-btn h-10 text-white px-4 rounded-full cursor-pointer"
+            onClick={handleCommentUpload}
+          >
+            Comment
           </button>
         </div>
       </div>

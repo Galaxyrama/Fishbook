@@ -5,6 +5,8 @@ import Navbar from "../components/Navbar";
 import useAuth from "../hook/useAuth";
 
 const UserPage = () => {
+  useAuth();
+
   const { username } = useParams();
   const navigate = useNavigate();
 
@@ -18,8 +20,6 @@ const UserPage = () => {
   const [casts, setCasts] = useState(0);
   const [hookers, setHookers] = useState(0);
   const [hooked, setHooked] = useState(0);
-
-  useAuth();
 
   useEffect(() => {
     const getUser = async () => {
@@ -98,8 +98,8 @@ const UserPage = () => {
   }, []);
 
   useEffect(() => {
-    if(!myProfile) setBtnText(isFollowing ? "Got Hooked" : "Get Hooked");
-  }, [isFollowing, myProfile])
+    if (!myProfile) setBtnText(isFollowing ? "Got Hooked" : "Get Hooked");
+  }, [isFollowing, myProfile]);
 
   const handleButton = async () => {
     if (myProfile) {
@@ -182,13 +182,7 @@ const UserPage = () => {
       <hr className="my-5 border-gray-600" />
 
       {posts &&
-        posts.map((post) => (
-          <Post
-            Post={post}
-            Home={false}
-            key={post._id}
-          />
-        ))}
+        posts.map((post) => <Post Post={post} Home={false} key={post._id} />)}
     </div>
   );
 };

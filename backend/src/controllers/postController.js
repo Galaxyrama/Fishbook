@@ -1,7 +1,8 @@
 import { Post } from "../models/Post.js";
 import { User } from "../models/User.js";
 import { Like } from "../models/Like.js";
-import { uploadPostFile, deleteFile } from "../services/cloudinary.js";
+import { uploadFile, deleteFile } from "../services/cloudinary.js";
+import mongoose from "mongoose";
 
 export const uploadPost = async (req, res) => {
   const { postTitle, postImage } = req.body;
@@ -11,7 +12,7 @@ export const uploadPost = async (req, res) => {
     let uploadImage = {};
 
     if (postImage) {
-      const result = await uploadPostFile(postImage, "Fishbook");
+      const result = await uploadFile(postImage, "Fishbook", "auto");
       uploadImage = result;
     }
 
@@ -43,7 +44,7 @@ export const editPost = async (req, res) => {
 
     //Uploads image if new image or video is provided
     if (postImage) {
-      const result = await uploadPostFile(postImage, "Fishbook");
+      const result = await uploadFile(postImage, "Fishbook", "auto");
       uploadImage = result;
       updateFields.postImage = uploadImage;
 
@@ -137,7 +138,7 @@ export const getPost = async (req, res) => {
       refId: postId,
     });
 
-    return res.status(200).json({ post, liked: !!existing, sameUser });
+    return res.status(200).json({ post, liked: !existing, sameUser });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't find the post" });

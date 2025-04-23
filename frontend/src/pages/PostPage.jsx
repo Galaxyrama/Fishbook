@@ -10,6 +10,8 @@ import EditPostComponent from "../components/EditPostComponent";
 import ReplyComponent from "../components/ReplyComponent";
 
 const PostPage = () => {
+  useAuth();
+
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${id}`;
   const tooltipLikeId = `tooltip-like-${id}`;
@@ -23,13 +25,11 @@ const PostPage = () => {
   const [postFile, setPostFile] = useState();
   const [postTitle, setPostTitle] = useState();
   const [dateUpload, setDateUpload] = useState();
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState();
   const [likeAmount, setLikeAmount] = useState(0);
   const [sameUser, setSameUser] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
   const [isImg, setIsImg] = useState(false);
-
-  useAuth();
 
   useEffect(
     () => {
@@ -256,7 +256,7 @@ const PostPage = () => {
           <hr />
 
           {/*  Reply or Comment */}
-          <ReplyComponent />
+          <ReplyComponent type={"Post"} commentedOnId={id}/>
           <hr className="pb-3" />
         </div>
       </div>
