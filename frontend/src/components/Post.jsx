@@ -251,6 +251,7 @@ const Post = ({ Post, Home }) => {
                 <ShareLinkComponent
                   username={Post.userId.username}
                   id={Post._id}
+                  type={"status"}
                 />
               </div>
             </div>

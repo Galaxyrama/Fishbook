@@ -128,7 +128,7 @@ const ReplyComponent = ({ type, commentedOnId }) => {
   return (
     <div>
       {/* Post comment block */}
-      <div className="flex py-3">
+      <div className="flex py-3 w-full">
         <div className="w-12 flex-shrink-0">
           <Link to={`/profile/${currentUser?.username}`}>
             <img

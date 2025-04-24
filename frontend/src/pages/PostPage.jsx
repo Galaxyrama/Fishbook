@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
 import useAuth from "../hook/useAuth";
 import VideoThumbnail from "../components/VideoThumbnail";
@@ -22,84 +22,109 @@ const PostPage = () => {
 
   //For Post
   const [post, setPost] = useState();
-  const [postFile, setPostFile] = useState();
+  const [postFile, setPostFile] = useState("/images/placeholder-image.webp");
   const [postTitle, setPostTitle] = useState();
   const [dateUpload, setDateUpload] = useState();
   const [isLiked, setIsLiked] = useState();
+  const [sameUser, setSameUser] = useState();
   const [likeAmount, setLikeAmount] = useState(0);
-  const [sameUser, setSameUser] = useState(false);
   const [isVideo, setIsVideo] = useState(false);
   const [isImg, setIsImg] = useState(false);
 
-  useEffect(
-    () => {
-      document.documentElement.scrollTop = 0;
-
-      //The tooltip about comment and like
-      const tooltipAppear = () => {
-        const $targetE1 = document.getElementById(tooltipCommentId);
-        const $triggerE1 = document.querySelector(
-          `[data-tooltip-target="${tooltipCommentId}"]`
-        );
-
-        const $targetE2 = document.getElementById(tooltipLikeId);
-        const $triggerE2 = document.querySelector(
-          `[data-tooltip-target="${tooltipLikeId}"]`
-        );
-
-        if ($targetE1 && $triggerE1) {
-          new Tooltip($targetE1, $triggerE1);
-        }
-
-        if ($targetE2 && $triggerE2) {
-          new Tooltip($targetE2, $triggerE2);
-        }
-      };
-
-      //Gets the post data
-      const getPost = async () => {
-        try {
-          const response = await fetch(
-            `http://localhost:5175/api/post/status/${id}`
-          );
-
-          const data = await response.json();
-
-          if (response.ok) {
-            setPost(data.post);
-            setLikeAmount(data.post.likeCount);
-            setIsLiked(data.liked);
-            setSameUser(data.sameUser);
-          }
-        } catch (e) {
-          console.error(e);
-        }
-      };
-
-      getPost();
-      tooltipAppear();
-    },
-    [],
-    [postFile],
-    [postTitle]
-  );
+  //For comment
+  const [comments, setComments] = useState([]);
 
   useEffect(() => {
-    formattedUpload(post?.createdAt);
+    document.documentElement.scrollTop = 0;
 
-    setPostTitle(post?.postTitle);
-    setPostFile(post?.postImage?.url);
+    //The tooltip about comment and like
+    const tooltipAppear = () => {
+      const $targetE1 = document.getElementById(tooltipCommentId);
+      const $triggerE1 = document.querySelector(
+        `[data-tooltip-target="${tooltipCommentId}"]`
+      );
 
-    if (post?.postImage?.url && post?.postImage?.url.includes("video")) {
-      setIsVideo(true);
-      setIsImg(false);
-      return;
-    } else {
-      setIsImg(true);
-      setIsVideo(false);
-      return;
-    }
-  }, [post]);
+      const $targetE2 = document.getElementById(tooltipLikeId);
+      const $triggerE2 = document.querySelector(
+        `[data-tooltip-target="${tooltipLikeId}"]`
+      );
+
+      if ($targetE1 && $triggerE1) {
+        new Tooltip($targetE1, $triggerE1);
+      }
+
+      if ($targetE2 && $triggerE2) {
+        new Tooltip($targetE2, $triggerE2);
+      }
+    };
+
+    //Gets the post data
+    const getPost = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/post/status/${id}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setPost(data.post);
+          setLikeAmount(data.post.likeCount);
+          setIsLiked(data.liked);
+          setSameUser(data.sameUser);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const getComments = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:5175/api/comment/${id}/Post`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setComments(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getPost();
+    getComments();
+    tooltipAppear();
+  }, []);
+
+  useEffect(
+    () => {
+      formattedUpload(post?.createdAt);
+
+      setPostTitle(post?.postTitle);
+      setPostFile(post?.postImage?.url);
+
+      if (post?.postImage?.url && post?.postImage?.url.includes("video")) {
+        setIsVideo(true);
+        setIsImg(false);
+        return;
+      } else {
+        setIsImg(true);
+        setIsVideo(false);
+        return;
+      }
+    },
+    [post],
+    [comments]
+  );
 
   const formattedUpload = (d) => {
     const date = new Date(d);
@@ -152,11 +177,15 @@ const PostPage = () => {
   };
 
   return (
-    <div className="font-montagu h-full bg-background">
+    <div
+      className={`font-montagu ${
+        comments.length > 0 ? "h-full" : "h-screen"
+      } bg-background`}
+    >
       <Navbar />
 
       {/* Post block */}
-      <div className="flex justify-center px-2 pt-20">
+      <div className="flex justify-center px-2 pt-20 pb-10">
         <div className="block px-5 max-w-3xl bg-white rounded-xl drop-shadow-xl">
           <div className="flex items-center justify-between py-3">
             <div className="flex gap-3 items-center">
@@ -203,7 +232,11 @@ const PostPage = () => {
                         </div>
                       </div>
                       <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <DeletePostComponent PostId={id} GoToHome={true} />
+                        <DeletePostComponent
+                          PostId={id}
+                          GoToHome={true}
+                          Type={"post"}
+                        />
                       </div>
                     </div>
                   </div>
@@ -256,8 +289,12 @@ const PostPage = () => {
           <hr />
 
           {/*  Reply or Comment */}
-          <ReplyComponent type={"Post"} commentedOnId={id}/>
-          <hr className="pb-3" />
+          <ReplyComponent type={"Post"} commentedOnId={id} />
+
+          {comments.map((comment) => (
+            <CommentComponent Comment={comment} key={comment._id} />
+          ))}
+          <hr className="pb-2" />
         </div>
       </div>
 

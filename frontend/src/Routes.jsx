@@ -15,7 +15,7 @@ import CommentPage from "./pages/CommentPage"
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<HomePage/>} />
+      <Route path="/" element={<HomePage />} />
       <Route path="/setup/:username" element={<AccountSetupPage />} />
       <Route path="/edit/:username" element={<EditUserProfilePage />} />
       <Route path="/:username/status/:id" element={<PostPage />} />

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 
-const DeletePostComponent = ({ PostId, GoToHome }) => {
+const DeletePostComponent = ({ PostId, GoToHome, Type }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const modalRef = useRef(null);
   const navigate = useNavigate();
@@ -15,7 +15,6 @@ const DeletePostComponent = ({ PostId, GoToHome }) => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -24,7 +23,7 @@ const DeletePostComponent = ({ PostId, GoToHome }) => {
   const handleDeletePost = async () => {
     try {
       const response = await fetch(
-        `http://localhost:5175/api/post/status/${PostId}/delete`,
+        `http://localhost:5175/api/${Type}/status/${PostId}/delete`,
         {
           method: "DELETE",
           credentials: "include",
@@ -75,7 +74,7 @@ const DeletePostComponent = ({ PostId, GoToHome }) => {
           </div>
           <hr className="py-1 border-[#ACACAC]" />
           <div className="py-1 px-3 text-xl">
-            <p className="pb-5">Are you sure you want to delete the post?</p>
+            <p className="pb-5">Are you sure you want to delete the {Type}?</p>
 
             <div className="flex float-right gap-3 pb-2">
               <button className="cursor-pointer text-btn" onClick={closeModal}>

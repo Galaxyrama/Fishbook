@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { createPortal } from "react-dom"
+import { createPortal } from "react-dom";
 
-const ShareLinkComponent = ({ username, id }) => {
+const ShareLinkComponent = ({ username, id, type }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(
-      `${window.location.href}${username ? username : ""}${
-        username && id ? "/status/" : ""
-      }${id ? id : ""}`
+      `${type === "status" ? window.location.href : "localhost:5173/"}${
+        username ? username : ""
+      }${username && id ? `/${type}/` : ""}${id ? id : ""}`
     );
     setIsOpen(true);
 
@@ -17,10 +17,9 @@ const ShareLinkComponent = ({ username, id }) => {
 
   const toast = isOpen && (
     <div className="z-50 bottom-4 left-1/2 transform -translate-x-1/2 text-center w-60 fixed">
-      <p className="text-white bg-btn py-2 rounded-md">
-        Copied to clickboard
-      </p>
-    </div>);
+      <p className="text-white bg-btn py-2 rounded-md">Copied to clickboard</p>
+    </div>
+  );
 
   return (
     <div>

@@ -2,7 +2,6 @@ import { Post } from "../models/Post.js";
 import { User } from "../models/User.js";
 import { Like } from "../models/Like.js";
 import { uploadFile, deleteFile } from "../services/cloudinary.js";
-import mongoose from "mongoose";
 
 export const uploadPost = async (req, res) => {
   const { postTitle, postImage } = req.body;
@@ -130,7 +129,7 @@ export const getPost = async (req, res) => {
 
     let sameUser = false;
 
-    if (post.userId._id == userId) sameUser = true;
+    if (post.userId._id.toString() === userId) sameUser = true;
 
     const existing = await Like.findOne({
       userId,
@@ -138,7 +137,7 @@ export const getPost = async (req, res) => {
       refId: postId,
     });
 
-    return res.status(200).json({ post, liked: !existing, sameUser });
+    return res.status(200).json({ post, liked: !!existing, sameUser });
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't find the post" });

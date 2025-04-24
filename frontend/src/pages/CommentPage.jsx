@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Navbar from "../components/Navbar";
 import { Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
+import ReplyComponent from "../components/ReplyComponent";
 
 const CommentPage = () => {
   const { username, id } = useParams();
@@ -39,7 +40,9 @@ const CommentPage = () => {
   }, []);
 
   const handleShareLink = () => {
-    navigator.clipboard.writeText(`localhost:5173/Test/status/${id}`);
+    navigator.clipboard.writeText(
+      `${window.location.href}${Comment.userId.username}/status/${Comment._id}`
+    );
     setIsOpen(true);
 
     setTimeout(() => setIsOpen(false), 5000);
@@ -177,32 +180,9 @@ const CommentPage = () => {
             </div>
           </div>
           <hr />
+          
           {/* Post comment block */}
-          <div className="flex py-3">
-            <div className="w-12 flex-shrink-0">
-              <Link to={`/profile/${username}`}>
-                <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full inline-block"
-                />
-              </Link>
-            </div>
-            <textarea
-              ref={textareaRef}
-              className={`focus:ring-0 pt-4 border-0 w-full resize-none h-auto`}
-              placeholder="Post your comment"
-              onChange={handleCommentChange}
-              value={comment}
-              rows={1}
-            />
-            <div className="pt-2">
-              <button className="inline-block bg-btn h-10 text-white px-5 rounded-full cursor-pointer">
-                Reply
-              </button>
-            </div>
-          </div>
-
-          <CommentComponent User={"User4"} DateUpload={Date.now()} />
+          <ReplyComponent type={"Comment"} commentedOnId={id} />
 
           <hr className="py-2" />
         </div>

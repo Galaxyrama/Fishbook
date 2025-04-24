@@ -5,9 +5,23 @@ import { Post } from "../models/Post.js";
 import { uploadFile, deleteFile } from "../services/cloudinary.js";
 
 export const getComments = async (req, res) => {
-  const { postId } = req.body;
+  const { postId, type } = req.params;
+  const userId = req.session.userID;
 
   try {
+    const comments = await Comment.find({
+      commentedOnId: postId,
+      commentedOnModel: type,
+    })
+      .populate("userId", "username profilePic.url")
+      .sort({ createdAt: -1 });
+
+    const commentsWithSameUser = comments.map((comment) => {
+      const isSameUser = comment.userId._id.toString() === userId;
+      return { ...comment.toObject(), same: isSameUser };
+    });
+
+    return res.status(200).json(commentsWithSameUser);
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't get comments" });
@@ -49,5 +63,83 @@ export const uploadComment = async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't upload commment" });
+  }
+};
+
+export const checkIfUserLikedComment = async (req, res) => {
+  const userId = req.session.userID;
+  const { commentId } = req.params;
+
+  try {
+    const liked = await Like.findOne({
+      userId,
+      refType: "Comment",
+      refId: commentId,
+    });
+
+    return res.status(200).json({ liked: !!liked });
+  } catch (e) {
+    console.error(e);
+    return res
+      .status(500)
+      .json({ error: "Couldn't find the like relationship." });
+  }
+};
+
+export const deleteComment = async (req, res) => {
+  const { commentId } = req.params;
+
+  try {
+    const comment = await Comment.findById(commentId).exec();
+
+    await Comment.findByIdAndDelete(commentId);
+
+    if (comment?.commentFile?.publicId) {
+      await deleteFile(comment?.commentFile?.publicId, "Comment");
+    }
+
+    if (comment.commentedOnModel === "Post") {
+      await Post.findByIdAndUpdate(comment.commentedOnId, {
+        $inc: { commentCount: -1 },
+      });
+    } else {
+      await Comment.findByIdAndUpdate(comment.commentedOnId, {
+        $inc: { commentCount: -1 },
+      });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Successfully deleted the comment" });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't delete the post" });
+  }
+};
+
+export const likeComment = async (req, res) => {
+  const userId = req.session.userID;
+  const { commentId } = req.params;
+
+  try {
+    const existing = await Like.findOne({
+      userId,
+      refType: "Comment",
+      refId: commentId,
+    });
+
+    if (!existing) {
+      await Like.create({ userId, refType: "Comment", refId: commentId });
+      await Comment.findByIdAndUpdate(commentId, { $inc: { likeCount: 1 } });
+      return res.status(200).json({ liked: true });
+    } else {
+      await Like.findByIdAndDelete(existing._id);
+      await Comment.findByIdAndUpdate(commentId, { $inc: { likeCount: -1 } });
+      return res.status(200).json({ liked: false });
+    }
+
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't like the comment" });
   }
 };
