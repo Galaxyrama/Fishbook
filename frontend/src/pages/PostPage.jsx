@@ -25,7 +25,7 @@ const PostPage = () => {
   const [postFile, setPostFile] = useState("/images/placeholder-image.webp");
   const [postTitle, setPostTitle] = useState();
   const [dateUpload, setDateUpload] = useState();
-  const [isLiked, setIsLiked] = useState();
+  const [isLiked, setIsLiked] = useState(false);
   const [sameUser, setSameUser] = useState();
   const [likeAmount, setLikeAmount] = useState(0);
   const [isVideo, setIsVideo] = useState(false);
@@ -256,6 +256,7 @@ const PostPage = () => {
               videoSrc={postFile}
               postId={id}
               username={username}
+              type={"status"}
             />
           )}
           <div className="flex text-gray-500 select-none py-3 text-[13px]">
@@ -333,6 +334,7 @@ const PostPage = () => {
           onClose={closeModal}
           isImg={isImg}
           isVideo={isVideo}
+          type={"post"}
         />
       )}
     </div>

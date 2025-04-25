@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const VideoThumbnail = ({ videoSrc, postId, username }) => {
+const VideoThumbnail = ({ videoSrc, postId, username, type }) => {
   const navigate = useNavigate();
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,7 +22,7 @@ const VideoThumbnail = ({ videoSrc, postId, username }) => {
       return;
     }
 
-    if (!isPlaying) navigate(`/${username}/status/${postId}`);
+    if (!isPlaying) navigate(`/${username}/${type}/${postId}`);
   };
 
   const handleTimeUpdate = () => {

@@ -6,7 +6,7 @@ const ShareLinkComponent = ({ username, id, type }) => {
 
   const handleShareLink = () => {
     navigator.clipboard.writeText(
-      `${type === "status" ? window.location.href : "localhost:5173/"}${
+      `localhost:5173/${
         username ? username : ""
       }${username && id ? `/${type}/` : ""}${id ? id : ""}`
     );

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import ShareLinkComponent from "./ShareLinkComponent";
 import DeletePostComponent from "./DeletePostComponent";
+import EditPostComponent from "./EditPostComponent";
+import VideoThumbnail from "./VideoThumbnail";
 
 const CommentComponent = ({ Comment }) => {
   const tooltipCommentId = `tooltip-comment-${Comment.userId._id}`;
@@ -9,32 +11,43 @@ const CommentComponent = ({ Comment }) => {
 
   const [dateUpload, setDateUpload] = useState();
 
-  const [isLiked, setIsLiked] = useState();
+  const [isLiked, setIsLiked] = useState({});
   const [likeAmount, setLikeAmount] = useState(Comment.likeCount);
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isVideo, setIsVideo] = useState(false);
+  const [isImg, setIsImg] = useState(false);
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
 
-    const $targetE1 = document.getElementById(tooltipCommentId);
-    const $triggerE1 = document.querySelector(
-      `[data-tooltip-target="${tooltipCommentId}"]`
-    );
+    const tooltipAppear = () => {
+      const $targetE1 = document.getElementById(tooltipCommentId);
+      const $triggerE1 = document.querySelector(
+        `[data-tooltip-target="${tooltipCommentId}"]`
+      );
 
-    const $targetE2 = document.getElementById(tooltipLikeId);
-    const $triggerE2 = document.querySelector(
-      `[data-tooltip-target="${tooltipLikeId}"]`
-    );
+      const $targetE2 = document.getElementById(tooltipLikeId);
+      const $triggerE2 = document.querySelector(
+        `[data-tooltip-target="${tooltipLikeId}"]`
+      );
 
-    if ($targetE1 && $triggerE1) {
-      new Tooltip($targetE1, $triggerE1);
-    }
+      if ($targetE1 && $triggerE1) {
+        new Tooltip($targetE1, $triggerE1);
+      }
 
-    if ($targetE2 && $triggerE2) {
-      new Tooltip($targetE2, $triggerE2);
+      if ($targetE2 && $triggerE2) {
+        new Tooltip($targetE2, $triggerE2);
+      }
+    };
+
+    if (Comment?.postImage?.url && Comment?.postImage?.url.includes("image")) {
+      setIsImg(true);
+      setIsVideo(false);
+    } else {
+      setIsImg(false);
+      setIsVideo(true);
     }
 
     const getLikeStatus = async () => {
@@ -49,13 +62,17 @@ const CommentComponent = ({ Comment }) => {
         const data = await response.json();
 
         if (response.ok) {
-          setIsLiked(data);
+          setIsLiked((prev) => ({
+            ...prev,
+            [Comment._id]: data.liked,
+          }));
         }
       } catch (e) {
         console.error(e);
       }
     };
 
+    tooltipAppear();
     getLikeStatus();
     formattedDate();
   }, []);
@@ -85,7 +102,7 @@ const CommentComponent = ({ Comment }) => {
     document.body.style.overflow = "auto";
   };
 
-  const handleLike = async() => {
+  const handleLike = async () => {
     try {
       const response = await fetch(
         `http://localhost:5175/api/comment/${Comment._id}/like`,
@@ -109,7 +126,7 @@ const CommentComponent = ({ Comment }) => {
     } catch (e) {
       console.error(e);
     }
-  }
+  };
 
   return (
     <div className="font-montagu w-full">
@@ -169,15 +186,23 @@ const CommentComponent = ({ Comment }) => {
           <p className="text-sm text-gray-500">{dateUpload}</p>
           <Link to={`/${Comment.userId.username}/comment/${Comment._id}`}>
             <p className="text-justify my-2 cursor-pointer">
-              {Comment.commentText}
+              {Comment.postTitle}
             </p>
-            {Comment?.commentFile?.url && (
+            {Comment?.postImage?.url && isImg && (
               <img
-                src={Comment?.commentFile?.url}
+                src={Comment?.postImage?.url}
                 className="w-full border border-gray-200 rounded-sm"
               />
             )}
           </Link>
+          {Comment?.postImage?.url && isVideo && (
+            <VideoThumbnail
+              videoSrc={Comment?.postImage?.url}
+              postId={Comment._id}
+              type={"comment"}
+              username={Comment.userId.username}
+            />
+          )}
 
           <div className="flex justify-between py-2 px-10 w-full">
             {/* Comments */}
@@ -195,14 +220,22 @@ const CommentComponent = ({ Comment }) => {
               onClick={handleLike}
             >
               <img
-                src={isLiked ? "/images/heart-liked.png" : "/images/heart.png"}
+                src={
+                  isLiked[Comment._id]
+                    ? "/images/heart-liked.png"
+                    : "/images/heart.png"
+                }
                 alt=""
                 className="w-6 h-6 mr-1"
               />
               <p>{likeAmount}</p>
             </div>
             {/* Share Link */}
-            <ShareLinkComponent username={Comment.userId.username} id={Comment._id} type={"comment"}/>
+            <ShareLinkComponent
+              username={Comment.userId.username}
+              id={Comment._id}
+              type={"comment"}
+            />
           </div>
         </div>
       </div>
@@ -237,10 +270,11 @@ const CommentComponent = ({ Comment }) => {
 
       {isEdit && (
         <EditPostComponent
-          post={post}
+          post={Comment}
           onClose={closeModal}
           isImg={isImg}
           isVideo={isVideo}
+          type={"comment"}
         />
       )}
     </div>

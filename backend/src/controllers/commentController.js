@@ -28,16 +28,40 @@ export const getComments = async (req, res) => {
   }
 };
 
+export const getCommentAndPost = async (req, res) => {
+  const { commentId } = req.params;
+  const userId = req.session.userID;
+
+  try {
+    const comment = await Comment.findById(commentId).populate(
+      "userId",
+      "profilePic.url"
+    ).exec();
+
+    const post = await Post.findById(comment.commentedOnId).populate(
+      "userId",
+      "username profilePic.url"
+    ).exec();
+
+    let sameUser = comment.userId._id.toString() === userId;
+
+    return res.status(200).json({ comment, post, sameUser });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't get the comment" });
+  }
+};
+
 export const uploadComment = async (req, res) => {
-  const { commentTitle, commentFile, commentedOnId } = req.body;
+  const { postTitle, postImage, commentedOnId } = req.body;
   const { type } = req.params;
   const userId = req.session.userID;
 
   try {
     let uploadCommentFile = {};
 
-    if (commentFile) {
-      const result = await uploadFile(commentFile, "CommentFile", "auto");
+    if (postImage) {
+      const result = await uploadFile(postImage, "CommentFile", "auto");
       uploadCommentFile = result;
     }
 
@@ -45,8 +69,8 @@ export const uploadComment = async (req, res) => {
       commentedOnId,
       commentedOnModel: type,
       userId,
-      commentText: commentTitle,
-      commentFile: uploadCommentFile,
+      postTitle,
+      postImage: uploadCommentFile,
     });
 
     if (type === "Post") {
@@ -63,6 +87,47 @@ export const uploadComment = async (req, res) => {
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't upload commment" });
+  }
+};
+
+export const editComment = async (req, res) => {
+  const { commentId } = req.params;
+  const { postTitle, postImage } = req.body;
+
+  try {
+    let uploadedFile = {};
+
+    const comment = await Comment.findById(commentId).exec();
+
+    const updateFields = {
+      postTitle,
+    };
+
+    if (postImage) {
+      const result = await uploadFile(postImage, "CommentFile", "auto");
+      uploadedFile = result;
+      updateFields.postImage = uploadedFile;
+
+      if (comment?.postImage?.publicId) {
+        await deleteFile(comment?.postImage?.publicId, "CommentFile");
+      }
+    }
+
+    if (!postImage && comment?.postImage?.publicId) {
+      await deleteFile(comment?.postImage?.publicId, "CommentFile");
+      updateFields.postImage = { url: null, publicId: null };
+    }
+
+    const updatedPost = await Comment.findByIdAndUpdate(
+      { _id: commentId },
+      updateFields,
+      { new: true }
+    );
+
+    return res.status(200).json(updatedPost);
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: "Couldn't edit the comment" });
   }
 };
 
@@ -94,8 +159,8 @@ export const deleteComment = async (req, res) => {
 
     await Comment.findByIdAndDelete(commentId);
 
-    if (comment?.commentFile?.publicId) {
-      await deleteFile(comment?.commentFile?.publicId, "Comment");
+    if (comment?.postImage?.publicId) {
+      await deleteFile(comment?.postImage?.publicId, "Comment");
     }
 
     if (comment.commentedOnModel === "Post") {
@@ -137,7 +202,6 @@ export const likeComment = async (req, res) => {
       await Comment.findByIdAndUpdate(commentId, { $inc: { likeCount: -1 } });
       return res.status(200).json({ liked: false });
     }
-
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't like the comment" });

@@ -3,8 +3,15 @@ import Navbar from "../components/Navbar";
 import { Link, useParams } from "react-router-dom";
 import CommentComponent from "../components/CommentComponent";
 import ReplyComponent from "../components/ReplyComponent";
+import ShareLinkComponent from "../components/ShareLinkComponent";
+import VideoThumbnail from "../components/VideoThumbnail";
+import useAuth from "../hook/useAuth";
+import DeletePostComponent from "../components/DeletePostComponent";
+import EditPostComponent from "../components/EditPostComponent";
 
 const CommentPage = () => {
+  useAuth();
+
   const { username, id } = useParams();
   const tooltipCommentId = `tooltip-comment-${username}-${id}`;
   const tooltipLikeId = `tooltip-like-${username}-${id}`;
@@ -12,95 +19,269 @@ const CommentPage = () => {
   const tooltipCommentId2 = `tooltip-comment-${username}-2`;
   const tooltipLikeId2 = `tooltip-like-${username}-2`;
 
-  const textareaRef = useRef(null);
-
   const [isOpen, setIsOpen] = useState(false);
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState(""); //for reply
+
+  const [post, setPost] = useState();
+  //the current comment that the user is looking at
+  const [currentComment, setCurrentComment] = useState();
+  const [comments, setComments] = useState([]); //all the comments
+  const [sameUser, setSameUser] = useState();
+
+  //for post
+  const [isLikedPost, setIsLikedPost] = useState();
+  const [postLikeCount, setPostLikeCount] = useState();
+  const [isPostVideo, setIsPostVideo] = useState(false);
+  const [isPostImg, setIsPostImg] = useState(false);
+
+  //for the current comment
+  const [isLikedComment, setIsLikedComment] = useState();
+  const [commentLikeCount, setCommentLikeCount] = useState();
+  const [isCommentVideo, setIsCommentVideo] = useState(false);
+  const [isCommentImg, setIsCommentImg] = useState(false);
+
+  const [dateUpload, setDateUpload] = useState();
+
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
 
-    const $targetE1 = document.getElementById(tooltipCommentId);
-    const $triggerE1 = document.querySelector(
-      `[data-tooltip-target="${tooltipCommentId}"]`
-    );
+    const tooltipAppear = () => {
+      const $targetE1 = document.getElementById(tooltipCommentId);
+      const $triggerE1 = document.querySelector(
+        `[data-tooltip-target="${tooltipCommentId}"]`
+      );
 
-    const $targetE2 = document.getElementById(tooltipLikeId);
-    const $triggerE2 = document.querySelector(
-      `[data-tooltip-target="${tooltipLikeId}"]`
-    );
+      const $targetE2 = document.getElementById(tooltipLikeId);
+      const $triggerE2 = document.querySelector(
+        `[data-tooltip-target="${tooltipLikeId}"]`
+      );
 
-    if ($targetE1 && $triggerE1) {
-      new Tooltip($targetE1, $triggerE1);
-    }
+      if ($targetE1 && $triggerE1) {
+        new Tooltip($targetE1, $triggerE1);
+      }
 
-    if ($targetE2 && $triggerE2) {
-      new Tooltip($targetE2, $triggerE2);
-    }
+      if ($targetE2 && $triggerE2) {
+        new Tooltip($targetE2, $triggerE2);
+      }
+    };
+
+    const getCommentAndPost = async () => {
+      try {
+        const res = await fetch(`http://localhost:5175/api/comment/${id}`, {
+          credentials: "include",
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setCurrentComment(data.comment);
+          setPost(data.post);
+          setSameUser(data.sameUser);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const getComments = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:5175/api/comment/${id}/Comment`,
+          { credentials: "include" }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setComments(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    const getLikeStatus = async (type) => {
+      try {
+        const res = await fetch(
+          `http://localhost:5175/api/${type}/${id}/isLiked`,
+          { credentials: "include" }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          if (type === "comment") setIsLikedComment(data);
+          else setIsLikedPost(data);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    getCommentAndPost();
+    getComments();
+    getLikeStatus("post");
+    getLikeStatus("comment");
+    tooltipAppear();
   }, []);
 
-  const handleShareLink = () => {
-    navigator.clipboard.writeText(
-      `${window.location.href}${Comment.userId.username}/status/${Comment._id}`
-    );
-    setIsOpen(true);
+  useEffect(() => {
+    setCommentLikeCount(currentComment?.likeCount);
+    setPostLikeCount(post?.likeCount);
 
-    setTimeout(() => setIsOpen(false), 5000);
+    setDateUpload(formattedDateAndTime(currentComment?.createdAt));
+
+    if (currentComment?.postImage?.url?.includes("image")) {
+      setIsCommentImg(true);
+      setIsCommentVideo(false);
+    } else {
+      setIsCommentVideo(true);
+      setIsCommentImg(false);
+    }
+
+    if (post?.postImage?.url.includes("image")) {
+      setIsPostImg(true);
+      setIsPostVideo(false);
+    } else {
+      setIsPostVideo(true);
+      setIsPostImg(false);
+    }
+  }, [currentComment, post]);
+
+  const formattedDate = (e) => {
+    const date = new Date(e);
+
+    const formattedDate = date.toLocaleDateString([], {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+
+    return formattedDate;
   };
 
-  // dynamically changes the height of textarea
-  const handleCommentChange = (e) => {
-    const value = e.target.value;
-    setComment(value);
+  const formattedDateAndTime = (e) => {
+    const date = new Date(e);
 
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
+    const formattedDate = date.toLocaleDateString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return formattedDate;
+  };
+
+  const handleOptions = () => setIsOpenModal((prev) => !prev);
+
+  const handleEditClick = () => {
+    setIsEdit(true);
+    setIsOpenModal(false);
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeModal = () => {
+    setIsEdit(false);
+    document.body.style.overflow = "auto";
   };
 
   return (
-    <div className="h-full bg-background font-montagu">
+    <div
+      className={`${
+        currentComment?.postImage?.url ? "h-full" : "h-screen"
+      } bg-background font-montagu`}
+    >
       <Navbar />
 
-      {/* Post block */}
-      <div className="flex justify-center px-2 pt-20">
+      <div className="flex justify-center px-2 pt-20 pb-5">
         <div className="block px-5 max-w-3xl pt-2 bg-white rounded-xl drop-shadow-xl">
+          {/* Post block */}
           <div className="flex py-2">
             <div className="flex-shrink-0 w-12 mr-3">
-              <Link to={`/profile/Test`}>
+              <Link to={`/profile/${username}`}>
                 <img
-                  src="/images/fishBackground.jpg"
-                  className="w-12 h-12 rounded-full"
+                  src={post?.userId?.profilePic?.url}
+                  className="w-12 h-12 rounded-full border border-gray-200"
                 />
               </Link>
 
               {/* Vertical divider */}
-              <Link to={`/test/status/1`}>
+              <Link to={`/${post?.userId?.username}/status/${post?._id}`}>
                 <div className="w-[4px] h-full bg-btn mx-5" />
               </Link>
             </div>
-            <div className="block">
-              <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
-                Test
+            <div className="block w-ful">
+              <div className="flex justify-between">
+                <Link to={`/profile/${post?.userId?.username}`}>
+                  <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
+                    {post?.userId?.username}
+                  </p>
+                </Link>
+                {/* Three buttons */}
+                {sameUser && (
+                  <div className="relative inline-block float-right">
+                    <p
+                      className="text-2xl select-none cursor-pointer hover:text-btn"
+                      onClick={handleOptions}
+                    >
+                      •••
+                    </p>
+                    {isOpenModal && (
+                      <div className="absolute z-1 rounded bg-white right-0 w-41">
+                        <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
+                        <div className="border border-gray-200 rounded shadow bg-white w-41">
+                          <div
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={handleEditClick}
+                          >
+                            <div className="flex">
+                              <img
+                                src="/images/edit.png"
+                                alt="Edit"
+                                className="w-5 h-5 mr-2"
+                              />
+                              <p>Edit Post</p>
+                            </div>
+                          </div>
+                          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <DeletePostComponent
+                              PostId={Comment._id}
+                              GoToHome={true}
+                              Type={"comment"}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p className="flex text-gray-500 select-none mb-2">
+                {formattedDate(post?.createdAt)}
               </p>
-              <p className="flex text-gray-500 select-none">{Date.now()}</p>
-              <Link to={`/test/status/1`}>
-                <p className="text-justify">
-                  Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sed
-                  quod explicabo.
-                </p>
-                <img src="/images/lmao.png" className="w-full" />
+              <Link to={`/${post?.userId?.username}/status/${post?._id}`}>
+                <p className="text-justify mb-2">{post?.postTitle}</p>
+                {isPostImg && post?.postImage?.url && (
+                  <img
+                    src={post?.postImage?.url}
+                    className="w-full rounded-sm border border-gray-200"
+                  />
+                )}
               </Link>
-              <div className="flex justify-between py-2 mr-10">
+
+              {isPostVideo && post?.postImage?.url && (
+                <VideoThumbnail videoSrc={post?.postImage?.url} />
+              )}
+              <div className="flex justify-between px-5 py-2">
                 {/* Comments */}
                 <div
                   className="flex select-none cursor-pointer"
                   data-tooltip-target={tooltipCommentId}
                 >
                   <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-                  <p>590</p>
+                  <p>{post?.commentCount}</p>
                 </div>
                 {/* Likes */}
                 <div
@@ -108,81 +289,84 @@ const CommentPage = () => {
                   data-tooltip-target={tooltipLikeId}
                 >
                   <img
-                    src="/images/heart.png"
-                    alt=""
+                    src={`/images/${isLikedPost ? "heart-liked" : "heart"}.png`}
+                    alt="like"
                     className="w-6 h-6 mr-1"
                   />
-                  <p>8770</p>
+                  <p>{postLikeCount}</p>
                 </div>
                 {/* Share Link */}
-                <div
-                  className="flex select-none cursor-pointer"
-                  onClick={handleShareLink}
-                >
-                  <img src="/images/share.png" className="w-g h-6 mr-1" />
-                  <p>Share</p>
-                </div>
+                <ShareLinkComponent
+                  type={"status"}
+                  username={post?.userId?.username}
+                  id={post?._id}
+                />
               </div>
               <hr className="mt-2" />
             </div>
           </div>
 
-          {/* Second block */}
+          {/* Current comment block */}
           <div className="flex py-2">
-            <div className="flex-shrink-0 w-12 mr-3">
+            <div className="flex-shrink-0 w-12 mr-3 flex">
               <img
-                src="/images/fishBackground.jpg"
-                className="w-12 h-12 rounded-full"
+                src={currentComment?.userId?.profilePic?.url}
+                className="w-12 h-12 rounded-full mr-3 border border-gray-200"
               />
+              <Link to={`/profile/${username}`}>
+                <p className="text-xl font-semibold cursor-pointer inline-block my-2 hover:text-btn">
+                  {username}
+                </p>
+              </Link>
             </div>
-            <div className="block">
-              <p className="text-xl font-semibold cursor-pointer inline-block my-2 hover:text-btn">
-                User2
-              </p>
-              <p className="text-justify">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                Voluptatem architecto alias quo quaerat voluptatum esse
-                laudantium minus enim molestias assumenda magnam maxime iste,
-                est dolorem, suscipit, at debitis tempora sunt!
-              </p>
-              <div className="flex text-gray-500 select-none py-3 text-[13px]">
-                <p>Post Time</p>
-                <p className="px-1">•</p>
-                <p>Post Date</p>
+          </div>
+          <div>
+            <div className="block w-full">
+              <p className="text-justify pb-2">{currentComment?.postTitle}</p>
+              {currentComment?.postImage?.url && isCommentImg && (
+                <img
+                  src={currentComment?.postImage?.url}
+                  className="border border-gray-200 rounded-sm w-full"
+                />
+              )}
+              <div className="flex text-gray-500 select-none pt-2 text-[13px]">
+                {dateUpload}
               </div>
             </div>
           </div>
           <hr className="mt-2" />
-          <div className="flex justify-between sm:justify-around ml-13  mr-10 py-2">
+          <div className="flex justify-between sm:justify-around px-10 py-2">
             {/* Comments */}
             <div
               className="flex select-none cursor-pointer items-center"
               data-tooltip-target={tooltipCommentId2}
             >
               <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-              <p>590</p>
+              <p>{currentComment?.commentCount}</p>
             </div>
             {/* Likes */}
             <div
               className="flex select-none cursor-pointer items-center"
               data-tooltip-target={tooltipLikeId2}
             >
-              <img src="/images/heart.png" alt="" className="w-6 h-6 mr-1" />
-              <p>8770</p>
+              <img
+                src={`/images/${isLikedComment ? "heart-liked" : "heart"}.png`}
+                alt=""
+                className="w-6 h-6 mr-1"
+              />
+              <p>{commentLikeCount}</p>
             </div>
             {/* Share Link */}
-            <div
-              className="flex select-none cursor-pointer items-center"
-              onClick={handleShareLink}
-            >
-              <img src="/images/share.png" className="w-g h-6 mr-1" />
-              <p>Share</p>
-            </div>
+            <ShareLinkComponent type={"status"} />
           </div>
           <hr />
-          
+
           {/* Post comment block */}
           <ReplyComponent type={"Comment"} commentedOnId={id} />
+
+          {comments.map((comment) => (
+            <CommentComponent Comment={comment} key={comment._id} />
+          ))}
 
           <hr className="py-2" />
         </div>
@@ -197,7 +381,7 @@ const CommentPage = () => {
         </div>
       )}
 
-      {/* Tooltip for Comment */}
+      {/* Tooltip for Comment post*/}
       <div
         id={tooltipCommentId}
         role="tooltip"
@@ -211,7 +395,7 @@ const CommentPage = () => {
         Comment
       </div>
 
-      {/* Tooltip for Like */}
+      {/* Tooltip for Like post*/}
       <div
         id={tooltipLikeId}
         role="tooltip"
@@ -225,7 +409,7 @@ const CommentPage = () => {
         Like
       </div>
 
-      {/* Tooltip for Comment */}
+      {/* Tooltip for Comment for current comment*/}
       <div
         id={tooltipCommentId2}
         role="tooltip"
@@ -239,7 +423,7 @@ const CommentPage = () => {
         Comment
       </div>
 
-      {/* Tooltip for Like */}
+      {/* Tooltip for Like for current comment*/}
       <div
         id={tooltipLikeId2}
         role="tooltip"
@@ -252,6 +436,16 @@ const CommentPage = () => {
       >
         Like
       </div>
+
+      {isEdit && (
+        <EditPostComponent
+          post={currentComment}
+          onClose={closeModal}
+          isImg={isCommentImg}
+          isVideo={isCommentVideo}
+          type={"comment"}
+        />
+      )}
     </div>
   );
 };

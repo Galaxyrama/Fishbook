@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
-const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
+const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
   const modalRef = useRef(null);
   const textareaRef = useRef(null);
 
@@ -33,7 +34,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
     }
   };
 
-  const handleAddPost = async(e) => {
+  const handleAddPost = async (e) => {
     const addFile = e.target.files[0];
     const maxSize = 50 * 1024 * 1024;
 
@@ -62,7 +63,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
   };
 
   //converts the blob url into a base64 string
-  const convertBlobToBase64 = async(blobUrl) => {
+  const convertBlobToBase64 = async (blobUrl) => {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
 
@@ -76,7 +77,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
     });
   };
 
-  const handlePostUpload = async() => {
+  const handlePostUpload = async () => {
     if (!file && !postTitle) return;
 
     let base64Image = null;
@@ -85,15 +86,18 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
       base64Image = await convertBlobToBase64(file);
     }
 
-    const response = await fetch(`http://localhost:5175/api/post/edit/${post._id}`, {
-      method: "PUT",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        postTitle,
-        postImage: base64Image,
-      }),
-    });
+    const response = await fetch(
+      `http://localhost:5175/api/${type}/edit/${post._id}`,
+      {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          postTitle,
+          postImage: base64Image,
+        }),
+      }
+    );
 
     if (response.ok) {
       location.reload();
@@ -104,146 +108,144 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo }) => {
     setIsImgModal(false);
     setIsVideoModal(false);
     setFile("");
-    setBase64Image("");
   };
 
-  return (
-    <div>
+  const toast = (
+    <div
+      className="flex justify-center items-center px-3 pt-20 fixed inset-0
+           bg-gray-500/50 overflow-y-auto z-[50] pointer-events-auto"
+    >
       <div
-        className="flex justify-center items-center px-3 pt-20 fixed inset-0
-                 bg-gray-500/50 overflow-y-auto z-[50] pointer-events-auto"
+        ref={modalRef}
+        className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col"
       >
-        <div
-          ref={modalRef}
-          className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col"
-        >
-          {/* Header */}
-          <div className="w-full relative text-center justify-center py-2">
-            <h1 className="text-2xl">Edit Post</h1>
-            <img
-              src="/images/exit-btn.png"
-              onClick={onClose}
-              className="w-7 h-7 absolute right-3 top-2.5
-                        transform -translatee-y-1/2
-                        pointer-events-auto cursor-pointer"
-            />
-          </div>
-          <hr className="py-1 border-[#ACACAC]" />
+        {/* Header */}
+        <div className="w-full relative text-center justify-center py-2">
+          <h1 className="text-2xl">Edit Post</h1>
+          <img
+            src="/images/exit-btn.png"
+            onClick={onClose}
+            className="w-7 h-7 absolute right-3 top-2.5
+                  transform -translatee-y-1/2
+                  pointer-events-auto cursor-pointer"
+          />
+        </div>
+        <hr className="py-1 border-[#ACACAC]" />
 
-          {/* Content */}
-          <div className="block px-3 py-1">
-            <div className="flex items-center gap-2">
-              <div className="w-12 flex-shrink-0">
-                <img
-                  src={post?.userId?.profilePic?.url}
-                  className="w-12 h-12 rounded-full border-1 border-gray-200"
-                />
-              </div>
-              <p className="text-xl">{post.userId.username}</p>
-            </div>
-            <div className="block py-1 overflow-y-auto max-h-[55vh]">
-              <textarea
-                ref={textareaRef}
-                className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
-                placeholder={`Edit the post here`}
-                onChange={handlePostChange}
-                rows={1}
-                value={postTitle}
+        {/* Content */}
+        <div className="block px-3 py-1">
+          <div className="flex items-center gap-2">
+            <div className="w-12 flex-shrink-0">
+              <img
+                src={post?.userId?.profilePic?.url}
+                className="w-12 h-12 rounded-full border-1 border-gray-200"
               />
-              {file && isImgModal && (
-                <div className="relative mr-2 border border-gray-200 rounded-md">
-                  <img
-                    src={file}
-                    className="h-full w-full flex justify-center"
-                  />
-                  <img
-                    className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                    src="/images/exit-btn.png"
-                    onClick={handlePostRemove}
-                  ></img>
-                </div>
-              )}
-              {file && isVideoModal && (
-                <div className="relative mr-2 border border-gray-200 rounded-md">
-                  <video src={file} className="h-full flex justify-center" />
-                  <img
-                    className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
-                    src="/images/exit-btn.png"
-                    onClick={handlePostRemove}
-                  ></img>
-                </div>
-              )}
             </div>
-            <div
-              className="flex border-2 border-gray-300 items-center 
-            justify-between py-2 px-3 my-2 rounded-xl"
-            >
-              <p>Add to your Post</p>
-
-              {/* Image Upload */}
-              <div className="flex gap-3">
-                <label htmlFor="imgUpload" className="cursor-pointer">
-                  <img
-                    src="/images/photo.png"
-                    className="w-10 h-10 cursor-pointer"
-                  />
-                </label>
-                <input
-                  type="file"
-                  className="text-white py-2 px-5 
-                      bg-btn rounded-xl cursor-pointer
-                      text-[0px] hidden"
-                  id="imgUpload"
-                  accept="image/png, image/jpeg"
-                  onChange={handleAddPost}
-                />
-
-                {/* Gif upload */}
-                <label htmlFor="gifUpload" className="cursor-pointer">
-                  <img
-                    src="/images/gif.png"
-                    className="w-10 h-10 cursor-pointer"
-                  />
-                </label>
-                <input
-                  type="file"
-                  className="text-white py-2 px-5 
-                      bg-btn rounded-xl cursor-pointer
-                      text-[0px] hidden"
-                  id="gifUpload"
-                  accept="image/gif"
-                  onChange={handleAddPost}
-                />
-
-                {/* Video upload */}
-                <label htmlFor="videoUpload">
-                  <img
-                    src="/images/video.png"
-                    className="w-10 h-10 cursor-pointer h"
-                  />
-                </label>
-                <input
-                  type="file"
-                  className="text-white py-2 px-5 
-                      bg-btn rounded-xl cursor-pointer
-                      text-[0px] hidden"
-                  id="videoUpload"
-                  accept="video/mp4"
-                  onChange={handleAddPost}
-                />
-              </div>
-            </div>
-            <button
-              onClick={handlePostUpload}
-              className="cursor-pointer w-full bg-btn text-white rounded-xl
-                          py-2 mb-2"
-            >
-              Post
-            </button>
+            <p className="text-xl">{post.userId.username}</p>
           </div>
+          <div className="block py-1 overflow-y-auto max-h-[55vh]">
+            <textarea
+              ref={textareaRef}
+              className="focus:outline-none focus:ring-0 border-0 w-full resize-none h-auto px-0"
+              placeholder={`Edit the post here`}
+              onChange={handlePostChange}
+              rows={1}
+              value={postTitle}
+            />
+            {file && isImgModal && (
+              <div className="relative mr-2 border border-gray-200 rounded-md">
+                <img src={file} className="h-full w-full flex justify-center" />
+                <img
+                  className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
+                  src="/images/exit-btn.png"
+                  onClick={handlePostRemove}
+                ></img>
+              </div>
+            )}
+            {file && isVideoModal && (
+              <div className="relative mr-2 border border-gray-200 rounded-md">
+                <video src={file} className="h-full flex justify-center" />
+                <img
+                  className="absolute top-2 right-3 w-7 h-7 cursor-pointer"
+                  src="/images/exit-btn.png"
+                  onClick={handlePostRemove}
+                ></img>
+              </div>
+            )}
+          </div>
+          <div
+            className="flex border-2 border-gray-300 items-center 
+      justify-between py-2 px-3 my-2 rounded-xl"
+          >
+            <p>Add to your Post</p>
+
+            {/* Image Upload */}
+            <div className="flex gap-3">
+              <label htmlFor="imgUpload" className="cursor-pointer">
+                <img
+                  src="/images/photo.png"
+                  className="w-10 h-10 cursor-pointer"
+                />
+              </label>
+              <input
+                type="file"
+                className="text-white py-2 px-5 
+                bg-btn rounded-xl cursor-pointer
+                text-[0px] hidden"
+                id="imgUpload"
+                accept="image/png, image/jpeg"
+                onChange={handleAddPost}
+              />
+
+              {/* Gif upload */}
+              <label htmlFor="gifUpload" className="cursor-pointer">
+                <img
+                  src="/images/gif.png"
+                  className="w-10 h-10 cursor-pointer"
+                />
+              </label>
+              <input
+                type="file"
+                className="text-white py-2 px-5 
+                bg-btn rounded-xl cursor-pointer
+                text-[0px] hidden"
+                id="gifUpload"
+                accept="image/gif"
+                onChange={handleAddPost}
+              />
+
+              {/* Video upload */}
+              <label htmlFor="videoUpload">
+                <img
+                  src="/images/video.png"
+                  className="w-10 h-10 cursor-pointer h"
+                />
+              </label>
+              <input
+                type="file"
+                className="text-white py-2 px-5 
+                bg-btn rounded-xl cursor-pointer
+                text-[0px] hidden"
+                id="videoUpload"
+                accept="video/mp4"
+                onChange={handleAddPost}
+              />
+            </div>
+          </div>
+          <button
+            onClick={handlePostUpload}
+            className="cursor-pointer w-full bg-btn text-white rounded-xl
+                    py-2 mb-2"
+          >
+            Post
+          </button>
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <div>{createPortal(toast, document.getElementById("toast-root"))}</div>
   );
 };
 

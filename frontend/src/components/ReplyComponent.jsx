@@ -110,8 +110,8 @@ const ReplyComponent = ({ type, commentedOnId }) => {
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          commentTitle: comment,
-          commentFile: base64,
+          postTitle: comment,
+          postFile: base64,
           commentedOnId,
         }),
       }

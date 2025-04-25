@@ -12,7 +12,7 @@ const Post = ({ Post, Home }) => {
   const tooltipLikeId = `tooltip-like-${Post._id}`;
 
   const [likeAmount, setLikeAmount] = useState(Post.likeCount);
-  const [hasLiked, setHasLiked] = useState();
+  const [hasLiked, setHasLiked] = useState({});
 
   const modalRef = useRef(null);
 
@@ -70,7 +70,10 @@ const Post = ({ Post, Home }) => {
         const data = await response.json();
 
         if (response.ok) {
-          setHasLiked(data);
+          setHasLiked((prev) => ({
+            ...prev,
+            [Post._id]: data.liked,
+          }));
         }
       } catch (e) {
         console.error(e);
@@ -91,7 +94,7 @@ const Post = ({ Post, Home }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [Post]);
 
   const handleLike = async () => {
     try {
@@ -107,10 +110,16 @@ const Post = ({ Post, Home }) => {
 
       if (response.ok) {
         if (data.liked) {
-          setHasLiked(true);
+          setHasLiked((prev) => ({
+            ...prev,
+            [Post._id]: true,
+          }));
           setLikeAmount((prev) => prev + 1);
         } else {
-          setHasLiked(false);
+          setHasLiked((prev) => ({
+            ...prev,
+            [Post._id]: false,
+          }));
           setLikeAmount((prev) => prev - 1);
         }
       }
@@ -179,7 +188,10 @@ const Post = ({ Post, Home }) => {
                             </div>
                           </div>
                           <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <DeletePostComponent PostId={Post._id} GoToHome={Home}/>
+                            <DeletePostComponent
+                              PostId={Post._id}
+                              GoToHome={Home}
+                            />
                           </div>
                         </div>
                       </div>
@@ -212,6 +224,7 @@ const Post = ({ Post, Home }) => {
                     videoSrc={Post?.postImage?.url}
                     postId={Post._id}
                     username={Post.userId.username}
+                    type={"status"}
                   />
                 )}
 
@@ -237,11 +250,9 @@ const Post = ({ Post, Home }) => {
                 >
                   <div className="w-6 h-6 flex items-center justify-center mr-1">
                     <img
-                      src={
-                        hasLiked
-                          ? "/images/heart-liked.png"
-                          : "/images/heart.png"
-                      }
+                      src={`/images/${
+                        hasLiked[Post._id] ? "heart-liked" : "heart"
+                      }.png`}
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -294,6 +305,7 @@ const Post = ({ Post, Home }) => {
           onClose={closeModal}
           isImg={isImg}
           isVideo={isVideo}
+          type={"post"}
         />
       )}
     </div>

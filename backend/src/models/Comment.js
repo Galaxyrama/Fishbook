@@ -16,8 +16,8 @@ const commentSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    commentText: { type: String, default: null },
-    commentFile: {
+    postTitle: { type: String, default: null },
+    postImage: {
       url: { type: String, default: null },
       publicId: { type: String, default: null },
     },
