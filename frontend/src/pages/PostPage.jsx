@@ -177,11 +177,7 @@ const PostPage = () => {
   };
 
   return (
-    <div
-      className={`font-montagu ${
-        comments.length > 0 ? "h-full" : "h-screen"
-      } bg-background`}
-    >
+    <div className={`font-montagu min-h-screen bg-background`}>
       <Navbar />
 
       {/* Post block */}

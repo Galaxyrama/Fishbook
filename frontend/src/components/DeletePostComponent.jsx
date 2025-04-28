@@ -63,7 +63,9 @@ const DeletePostComponent = ({ PostId, GoToHome, Type }) => {
         <div>
           {/* Header */}
           <div className="w-full relative text-center justify-center py-2">
-            <h1 className="text-2xl">Delete Post</h1>
+            <h1 className="text-2xl">
+              Delete {Type.charAt(0).toUpperCase() + String(Type).slice(1)}
+            </h1>
             <img
               src="/images/exit-btn.png"
               onClick={closeModal}
@@ -97,7 +99,7 @@ const DeletePostComponent = ({ PostId, GoToHome, Type }) => {
     <div>
       <div className="flex" onClick={openModal}>
         <img src="/images/delete.png" alt="Delete" className="w-5 h-5 mr-2" />
-        <p>Delete Post</p>
+        <p>Delete {Type.charAt(0).toUpperCase() + String(Type).slice(1)}</p>
       </div>
 
       {createPortal(toast, document.getElementById("toast-root"))}

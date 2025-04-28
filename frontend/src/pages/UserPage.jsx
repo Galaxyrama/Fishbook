@@ -128,11 +128,7 @@ const UserPage = () => {
   };
 
   return (
-    <div
-      className={`bg-background ${
-        casts === 0 ? "h-screen" : "h-full"
-      } font-montagu`}
-    >
+    <div className={`bg-background min-h-screen font-montagu`}>
       <Navbar />
       {profilePic && description && (
         <div className="flex w-full justify-center pt-25 sm:px-16">

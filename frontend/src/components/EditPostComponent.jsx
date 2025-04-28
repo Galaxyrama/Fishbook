@@ -121,7 +121,9 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
       >
         {/* Header */}
         <div className="w-full relative text-center justify-center py-2">
-          <h1 className="text-2xl">Edit Post</h1>
+          <h1 className="text-2xl">
+            Edit {type.charAt(0).toUpperCase() + String(type).slice(1)}
+          </h1>
           <img
             src="/images/exit-btn.png"
             onClick={onClose}
@@ -141,7 +143,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
                 className="w-12 h-12 rounded-full border-1 border-gray-200"
               />
             </div>
-            <p className="text-xl">{post.userId.username}</p>
+            <p className="text-xl">{post?.userId?.username}</p>
           </div>
           <div className="block py-1 overflow-y-auto max-h-[55vh]">
             <textarea

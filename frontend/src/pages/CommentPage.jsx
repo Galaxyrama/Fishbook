@@ -19,9 +19,6 @@ const CommentPage = () => {
   const tooltipCommentId2 = `tooltip-comment-${username}-2`;
   const tooltipLikeId2 = `tooltip-like-${username}-2`;
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [comment, setComment] = useState(""); //for reply
-
   const [post, setPost] = useState();
   //the current comment that the user is looking at
   const [currentComment, setCurrentComment] = useState();
@@ -29,13 +26,15 @@ const CommentPage = () => {
   const [sameUser, setSameUser] = useState();
 
   //for post
-  const [isLikedPost, setIsLikedPost] = useState();
+  const [isLikedPost, setIsLikedPost] = useState(false);
   const [postLikeCount, setPostLikeCount] = useState();
   const [isPostVideo, setIsPostVideo] = useState(false);
   const [isPostImg, setIsPostImg] = useState(false);
 
+  const [type, setType] = useState();
+
   //for the current comment
-  const [isLikedComment, setIsLikedComment] = useState();
+  const [isLikedComment, setIsLikedComment] = useState(false);
   const [commentLikeCount, setCommentLikeCount] = useState();
   const [isCommentVideo, setIsCommentVideo] = useState(false);
   const [isCommentImg, setIsCommentImg] = useState(false);
@@ -80,6 +79,7 @@ const CommentPage = () => {
           setCurrentComment(data.comment);
           setPost(data.post);
           setSameUser(data.sameUser);
+          setType(data.type);
         }
       } catch (e) {
         console.error(e);
@@ -103,30 +103,10 @@ const CommentPage = () => {
       }
     };
 
-    const getLikeStatus = async (type) => {
-      try {
-        const res = await fetch(
-          `http://localhost:5175/api/${type}/${id}/isLiked`,
-          { credentials: "include" }
-        );
-
-        const data = await res.json();
-
-        if (res.ok) {
-          if (type === "comment") setIsLikedComment(data);
-          else setIsLikedPost(data);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
     getCommentAndPost();
     getComments();
-    getLikeStatus("post");
-    getLikeStatus("comment");
     tooltipAppear();
-  }, []);
+  }, [id]);
 
   useEffect(() => {
     setCommentLikeCount(currentComment?.likeCount);
@@ -142,12 +122,37 @@ const CommentPage = () => {
       setIsCommentImg(false);
     }
 
-    if (post?.postImage?.url.includes("image")) {
+    if (post?.postImage?.url?.includes("image")) {
       setIsPostImg(true);
       setIsPostVideo(false);
     } else {
       setIsPostVideo(true);
       setIsPostImg(false);
+    }
+
+    const getLikeStatus = async (type, typeId, type2) => {
+      try {
+        const res = await fetch(
+          `http://localhost:5175/api/${type}/${typeId}/isLiked`,
+          {
+            credentials: "include",
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          if(type2 === "post") { setIsLikedPost(data.liked); }
+          else { setIsLikedComment(data.liked); }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (currentComment && post) {
+      getLikeStatus(type, post._id, "post");
+      getLikeStatus("comment", currentComment._id, "comment");
     }
   }, [currentComment, post]);
 
@@ -188,11 +193,7 @@ const CommentPage = () => {
   };
 
   return (
-    <div
-      className={`${
-        currentComment?.postImage?.url ? "h-full" : "h-screen"
-      } bg-background font-montagu`}
-    >
+    <div className={`min-h-screen bg-background font-montagu`}>
       <Navbar />
 
       <div className="flex justify-center px-2 pt-20 pb-5">
@@ -208,60 +209,34 @@ const CommentPage = () => {
               </Link>
 
               {/* Vertical divider */}
-              <Link to={`/${post?.userId?.username}/status/${post?._id}`}>
+              <Link
+                to={`/${post?.userId?.username}/${
+                  currentComment?.commentedOnModel === "Post"
+                    ? "status"
+                    : "comment"
+                }/${post?._id}`}
+              >
                 <div className="w-[4px] h-full bg-btn mx-5" />
               </Link>
             </div>
-            <div className="block w-ful">
+            <div className="block w-full">
               <div className="flex justify-between">
                 <Link to={`/profile/${post?.userId?.username}`}>
                   <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
                     {post?.userId?.username}
                   </p>
                 </Link>
-                {/* Three buttons */}
-                {sameUser && (
-                  <div className="relative inline-block float-right">
-                    <p
-                      className="text-2xl select-none cursor-pointer hover:text-btn"
-                      onClick={handleOptions}
-                    >
-                      •••
-                    </p>
-                    {isOpenModal && (
-                      <div className="absolute z-1 rounded bg-white right-0 w-41">
-                        <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-                        <div className="border border-gray-200 rounded shadow bg-white w-41">
-                          <div
-                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                            onClick={handleEditClick}
-                          >
-                            <div className="flex">
-                              <img
-                                src="/images/edit.png"
-                                alt="Edit"
-                                className="w-5 h-5 mr-2"
-                              />
-                              <p>Edit Post</p>
-                            </div>
-                          </div>
-                          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                            <DeletePostComponent
-                              PostId={Comment._id}
-                              GoToHome={true}
-                              Type={"comment"}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
               <p className="flex text-gray-500 select-none mb-2">
                 {formattedDate(post?.createdAt)}
               </p>
-              <Link to={`/${post?.userId?.username}/status/${post?._id}`}>
+              <Link
+                to={`/${post?.userId?.username}/${
+                  currentComment?.commentedOnModel === "Post"
+                    ? "status"
+                    : "comment"
+                }/${post?._id}`}
+              >
                 <p className="text-justify mb-2">{post?.postTitle}</p>
                 {isPostImg && post?.postImage?.url && (
                   <img
@@ -307,17 +282,57 @@ const CommentPage = () => {
           </div>
 
           {/* Current comment block */}
-          <div className="flex py-2">
+          <div className="flex py-2 w-full">
             <div className="flex-shrink-0 w-12 mr-3 flex">
               <img
                 src={currentComment?.userId?.profilePic?.url}
                 className="w-12 h-12 rounded-full mr-3 border border-gray-200"
               />
+            </div>
+            <div className="flex w-full items-center justify-between">
               <Link to={`/profile/${username}`}>
                 <p className="text-xl font-semibold cursor-pointer inline-block my-2 hover:text-btn">
                   {username}
                 </p>
               </Link>
+              {/* Three buttons */}
+              {sameUser && (
+                <div className="relative inline-block float-right">
+                  <p
+                    className="text-2xl select-none cursor-pointer hover:text-btn"
+                    onClick={handleOptions}
+                  >
+                    •••
+                  </p>
+                  {isOpenModal && (
+                    <div className="absolute z-1 rounded bg-white right-0 w-41">
+                      <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
+                      <div className="border border-gray-200 rounded shadow bg-white w-41">
+                        <div
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={handleEditClick}
+                        >
+                          <div className="flex">
+                            <img
+                              src="/images/edit.png"
+                              alt="Edit"
+                              className="w-5 h-5 mr-2"
+                            />
+                            <p>Edit Post</p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          <DeletePostComponent
+                            PostId={Comment._id}
+                            GoToHome={true}
+                            Type={"comment"}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
           <div>
@@ -371,15 +386,6 @@ const CommentPage = () => {
           <hr className="py-2" />
         </div>
       </div>
-
-      {/* Modal for sharing link */}
-      {isOpen && (
-        <div className="z-50 bottom-4 left-1/2 transform -translate-x-1/2 text-center w-60 fixed">
-          <p className="text-white bg-btn py-2 rounded-md">
-            Copied to clickboard
-          </p>
-        </div>
-      )}
 
       {/* Tooltip for Comment post*/}
       <div

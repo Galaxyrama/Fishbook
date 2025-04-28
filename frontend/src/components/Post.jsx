@@ -191,6 +191,7 @@ const Post = ({ Post, Home }) => {
                             <DeletePostComponent
                               PostId={Post._id}
                               GoToHome={Home}
+                              Type={"post"}
                             />
                           </div>
                         </div>

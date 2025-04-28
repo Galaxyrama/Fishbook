@@ -1,6 +1,5 @@
 import { Comment } from "../models/Comment.js";
 import { Like } from "../models/Like.js";
-import { User } from "../models/User.js";
 import { Post } from "../models/Post.js";
 import { uploadFile, deleteFile } from "../services/cloudinary.js";
 
@@ -33,19 +32,36 @@ export const getCommentAndPost = async (req, res) => {
   const userId = req.session.userID;
 
   try {
-    const comment = await Comment.findById(commentId).populate(
-      "userId",
-      "profilePic.url"
-    ).exec();
+    const comment = await Comment.findById(commentId)
+      .populate("userId", "username profilePic.url")
+      .exec();
 
-    const post = await Post.findById(comment.commentedOnId).populate(
-      "userId",
-      "username profilePic.url"
-    ).exec();
+    const post = await Post.findById(comment.commentedOnId)
+      .populate("userId", "username profilePic.url")
+      .exec();
+
+    const commentedOn = await Comment.findById(comment.commentedOnId)
+      .populate("userId", "username profilePic.url")
+      .exec();
 
     let sameUser = comment.userId._id.toString() === userId;
 
-    return res.status(200).json({ comment, post, sameUser });
+    const updateFields = {
+      comment,
+      sameUser,
+    };
+
+    if (post) {
+      updateFields.post = post;
+      updateFields.type = "status";
+    }
+
+    if (commentedOn) {
+      updateFields.post = commentedOn;
+      updateFields.type = "comment";
+    }
+
+    return res.status(200).json(updateFields);
   } catch (e) {
     console.error(e);
     return res.status(500).json({ error: "Couldn't get the comment" });
