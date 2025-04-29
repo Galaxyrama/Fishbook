@@ -113,7 +113,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
   const toast = (
     <div
       className="flex justify-center items-center px-3 pt-20 fixed inset-0
-           bg-gray-500/50 overflow-y-auto z-[50] pointer-events-auto"
+           bg-gray-500/50 overflow-y-auto z-[100] pointer-events-auto "
     >
       <div
         ref={modalRef}

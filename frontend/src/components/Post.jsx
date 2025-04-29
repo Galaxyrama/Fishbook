@@ -214,7 +214,6 @@ const Post = ({ Post, Home }) => {
                   <Link to={`/${Post.userId.username}/status/${Post._id}`}>
                     <img
                       src={Post?.postImage?.url}
-                      alt=""
                       className="mb-3 w-full rounded-md border-1 border-gray-200"
                     />
                   </Link>

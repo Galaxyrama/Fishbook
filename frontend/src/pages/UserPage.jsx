@@ -34,7 +34,7 @@ const UserPage = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          navigate("*");
+          navigate("/404");
           return;
         }
 
@@ -95,7 +95,7 @@ const UserPage = () => {
     getUser();
     getUserPosts();
     checkIfFollowed();
-  }, []);
+  }, [username]);
 
   useEffect(() => {
     if (!myProfile) setBtnText(isFollowing ? "Got Hooked" : "Get Hooked");

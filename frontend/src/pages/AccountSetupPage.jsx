@@ -4,8 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../utils/cropImage.js";
 import useAuth from "../hook/useAuth.js";
+import useIsOnSetup from "../stores/useIsOnSetup.js";
 
 const AccountSetupPage = () => {
+  const { setIsOnSetup, setIsNotOnSetup } = useIsOnSetup();
+
   const [currentUsername, setUsername] = useState("");
   const [description, setDescription] = useState("");
   const [birthDate, setBirthDate] = useState("");
@@ -31,6 +34,8 @@ const AccountSetupPage = () => {
   useAuth();
 
   useEffect(() => {
+    setIsOnSetup();
+
     const getCountries = async () => {
       try {
         const response = await fetch("https://restcountries.com/v3.1/all");
@@ -44,12 +49,42 @@ const AccountSetupPage = () => {
       }
     };
 
+    //checks if the current user already has setup the account or is the same user
+    const checkIfUserSetupValid = async () => {
+      try {
+        const res = await fetch(`http://localhost:5175/api/user/`, {
+          credentials: "include",
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          return;
+        }
+
+        if (data.profile.url !== null) {
+          navigate("/");
+        }
+
+        if (data.profile.username !== username) {
+          navigate("/");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
     const today = new Date();
     const formatted = today.toISOString().split("T")[0];
 
+    checkIfUserSetupValid();
     getCountries();
     setUsername(username);
     setBirthDate(formatted);
+
+    return () => {
+      setIsNotOnSetup();
+    };
   }, []);
 
   //handles the submit
@@ -136,7 +171,7 @@ const AccountSetupPage = () => {
   };
 
   return (
-    <div className="bg-background font-montagu h-full py-20">
+    <div className="bg-background font-montagu min-h-screen py-20">
       <Navbar />
       <div className="block sm:flex">
         <div className="mt-5 ml-5 w-sm">

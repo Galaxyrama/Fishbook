@@ -7,6 +7,7 @@ import Post from "../components/Post";
 const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const textareaRef = useRef(null);
+  const modalRef = useRef(null);
 
   const navigate = useNavigate();
 
@@ -44,7 +45,7 @@ const HomePage = () => {
           const data = await response.json();
 
           if (response.ok) {
-            if (data.profile.url == null) {
+            if (data.profile.url === null) {
               navigate(`/setup/${data.username}`);
               return;
             }
@@ -76,6 +77,18 @@ const HomePage = () => {
       document.documentElement.scrollTop = 0;
       getUser();
       getPosts();
+
+      const handleClickOutside = (event) => {
+        if (modalRef.current && !modalRef.current.contains(event.target)) {
+          closeModal();
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
     },
     [],
     [uploaded]
@@ -207,8 +220,11 @@ const HomePage = () => {
 
           {/* Modal for Create Post */}
           {isOpen && (
-            <div className="flex justify-center items-center px-3 pt-40 pb-8 fixed inset-0 bg-gray-500/50 overflow-y-auto">
-              <div className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col">
+            <div className="flex justify-center items-center px-3 pt-40 pb-8 fixed inset-0 z-100 bg-gray-500/50 overflow-y-auto">
+              <div
+                className="max-w-xl w-full bg-white rounded-lg drop-shadow-xl max-h-screen flex flex-col"
+                ref={modalRef}
+              >
                 {/* Header */}
                 <div className="w-full relative text-center justify-center py-2">
                   <h1 className="text-2xl">Create Post</h1>

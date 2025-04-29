@@ -204,7 +204,7 @@ const CommentComponent = ({ Comment }) => {
             />
           )}
 
-          <div className="flex justify-between py-2 px-10 w-full">
+          <div className="flex sm:justify-between justify-evenly pt-3 pb-1 sm:px-10 w-full">
             {/* Comments */}
             <div
               className="flex select-none cursor-pointer"
