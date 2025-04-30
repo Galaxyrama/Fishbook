@@ -72,7 +72,7 @@ const Post = ({ Post, Home }) => {
         if (response.ok) {
           setHasLiked((prev) => ({
             ...prev,
-            [Post._id]: data.liked,
+            [Post._id]: data.liked, //to completely separate the posts from each other
           }));
         }
       } catch (e) {
@@ -295,7 +295,7 @@ const Post = ({ Post, Home }) => {
                    opacity-0 transition-opacity
                    duration-300 tooltip"
       >
-        {hasLiked ? "Unlike" : "Like"}
+        {hasLiked[Post._id] ? "Unlike" : "Like"}
       </div>
 
       {/* Modal for Edit Post */}

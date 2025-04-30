@@ -204,15 +204,21 @@ const CommentComponent = ({ Comment }) => {
             />
           )}
 
-          <div className="flex sm:justify-between justify-evenly pt-3 pb-1 sm:px-10 w-full">
+          <div className="flex sm:justify-between justify-evenly pt-3 pb-1 sm:pr-8 w-full">
             {/* Comments */}
-            <div
-              className="flex select-none cursor-pointer"
-              data-tooltip-target={tooltipCommentId}
-            >
-              <img src="/images/comment.png" alt="" className="w-6 h-6 mr-1" />
-              <p>{Comment.commentCount}</p>
-            </div>
+            <Link to={`/${Comment.userId.username}/comment/${Comment._id}`}>
+              <div
+                className="flex select-none cursor-pointer"
+                data-tooltip-target={tooltipCommentId}
+              >
+                <img
+                  src="/images/comment.png"
+                  alt=""
+                  className="w-6 h-6 mr-1"
+                />
+                <p>{Comment.commentCount}</p>
+              </div>
+            </Link>
             {/* Likes */}
             <div
               className="flex select-none cursor-pointer"

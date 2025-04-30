@@ -310,9 +310,9 @@ const CommentPage = () => {
                     •••
                   </p>
                   {isOpenModal && (
-                    <div className="absolute z-1 rounded bg-white right-0 w-41">
-                      <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-                      <div className="border border-gray-200 rounded shadow bg-white w-41">
+                    <div className="absolute z-1 rounded bg-white right-0 w-52">
+                      <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200 " />
+                      <div className="border border-gray-200 rounded shadow bg-white w-52">
                         <div
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                           onClick={handleEditClick}
@@ -323,7 +323,7 @@ const CommentPage = () => {
                               alt="Edit"
                               className="w-5 h-5 mr-2"
                             />
-                            <p>Edit Post</p>
+                            <p>Edit Comment</p>
                           </div>
                         </div>
                         <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">

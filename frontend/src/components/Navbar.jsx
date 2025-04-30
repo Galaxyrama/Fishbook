@@ -9,9 +9,6 @@ const Navbar = () => {
   const { isOnSetup } = useIsOnSetup();
   const user = userProfile();
 
-  const [profilePic, setProfilePic] = useState();
-  const [username, setUsername] = useState();
-
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState(false);
 
