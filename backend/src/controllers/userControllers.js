@@ -80,7 +80,7 @@ export const getCurrentUserDetails = async (req, res) => {
       profile: user.profilePic,
     });
   } catch (error) {
-    res.status(500).json({ error: "Can't get user" });
+    res.status(500).json({ error: "Couldn't get user" });
   }
 };
 
@@ -106,7 +106,7 @@ export const getUserDetails = async (req, res) => {
       followerCount: user.followerCount,
     });
   } catch (e) {
-    res.status(500).json({ error: "Can't get user" });
+    res.status(500).json({ error: "Couldn't get user" });
   }
 };
 
@@ -265,12 +265,16 @@ export const checkIfFollowed = async (req, res) => {
   try {
     const followee = await User.findOne({ username }).exec();
 
-    const existing = await Follow.findOne({
-      userId,
-      followeeId: followee._id,
-    });
+    if (followee) {
+      const existing = await Follow.findOne({
+        userId,
+        followeeId: followee._id,
+      });
 
-    return res.status(200).json({ followed: !!existing });
+      return res.status(200).json({ followed: !!existing });
+    }
+
+    return res.status(500).json({ error: "User does not exist" });
   } catch (e) {
     console.error("Couldn't check follow relationship:", e);
     return res
