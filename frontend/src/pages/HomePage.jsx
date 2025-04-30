@@ -190,6 +190,7 @@ const HomePage = () => {
 
       {username && profilePicture && (
         <div>
+          
           <div className="flex justify-center w-full pb-5 pt-20 px-2">
             <div className="w-full max-w-3xl">
               <div className="flex items-center gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4">
