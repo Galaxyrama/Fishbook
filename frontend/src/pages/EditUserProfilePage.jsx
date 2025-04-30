@@ -4,8 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import Cropper from "react-easy-crop";
 import getCroppedImg from "../utils/cropImage.js";
 import useAuth from "../hook/useAuth.js";
+import userProfile from "../stores/useProfile.js";
 
 const EditUserProfilePage = () => {
+  const { changeProfile, changeUsername } = userProfile();
   const { username } = useParams();
   const navigate = useNavigate();
 
@@ -33,6 +35,7 @@ const EditUserProfilePage = () => {
   const [countries, setCountries] = useState([]);
 
   useEffect(() => {
+    //too many countries, had to use an api to get their stored country name
     const getCountries = async () => {
       try {
         const response = await fetch("https://restcountries.com/v3.1/all");
@@ -101,14 +104,11 @@ const EditUserProfilePage = () => {
       body: JSON.stringify(bodyData),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.error);
-      throw new Error(data.message || "Edit failed");
+    if (response.ok) {
+      changeProfile(profilePicture);
+      changeUsername(currentUsername);
+      navigate(`/profile/${currentUsername}`);
     }
-
-    navigate(`/profile/${username}`);
   };
 
   //handles when the user changes the image

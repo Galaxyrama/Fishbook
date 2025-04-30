@@ -1,11 +1,13 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useIsOnSetup from "../stores/useIsOnSetup";
+import userProfile from "../stores/useProfile";
 
 const Navbar = () => {
   const searchRef = useRef(null);
   const navigate = useNavigate();
   const { isOnSetup } = useIsOnSetup();
+  const user = userProfile();
 
   const [profilePic, setProfilePic] = useState();
   const [username, setUsername] = useState();
@@ -15,12 +17,16 @@ const Navbar = () => {
 
   //Makes it so that the tooltip is consistent
   useEffect(() => {
-    const cached = localStorage.getItem("cachedProfilePic");
-    const username = localStorage.getItem("cachedUsername");
+    const handleClickOutside = (event) => {
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        openSearch();
+      }
+    };
 
-    if (cached && username) {
-      setProfilePic(cached);
-      setUsername(username);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    if (user.currentUsername && user.currentProfile) {
+      return;
     } else {
       const getUser = async () => {
         try {
@@ -31,14 +37,12 @@ const Navbar = () => {
           const data = await res.json();
 
           if (res.ok) {
-            localStorage.setItem("cachedUsername", data.username);
-            setUsername(data.username);
+            user.changeUsername(data.username);
 
             const img = new Image();
             img.src = data.profile.url;
             img.onload = () => {
-              localStorage.setItem("cachedProfilePic", data.profile.url);
-              setProfilePic(data.profile.url);
+              user.changeProfile(data.profile.url);
             };
           }
         } catch (e) {
@@ -48,14 +52,6 @@ const Navbar = () => {
 
       getUser();
     }
-
-    const handleClickOutside = (event) => {
-      if (searchRef.current && !searchRef.current.contains(event.target)) {
-        openSearch();
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -69,8 +65,8 @@ const Navbar = () => {
       });
 
       if (response.ok) {
-        localStorage.removeItem("cachedProfilePic");
-        localStorage.removeItem("cachedUsername");
+        user.deleteUsername();
+        user.deleteProfile();
         navigate("/login");
       }
     } catch (error) {
@@ -136,7 +132,7 @@ const Navbar = () => {
         <div className="relative m-auto mr-4 pl-30">
           <img
             src={`${
-              !isOnSetup ? profilePic : "/images/avatar-placeholder.png"
+              !isOnSetup ? user.currentProfile : "/images/avatar-placeholder.png"
             }`}
             onClick={() => setIsOpenModal((prev) => !prev)}
             className={`w-10 h-10 ml-auto sm:mr-8 rounded-3xl
@@ -145,7 +141,7 @@ const Navbar = () => {
           />
           {isOpenModal && (
             <div className="absolute top-full right-4 sm:right-10 bg-white rounded-md shadow-md z-50 text-left">
-              <Link to={`/profile/${username}`}>
+              <Link to={`/profile/${user.currentUsername}`}>
                 <div className="flex items-center py-2 p-1 hover:bg-gray-100 cursor-pointer rounded-t-md">
                   <img src="/images/user.png" className="w-6 h-6 mr-2" />
                   <p className="cursor-pointer rounded-t-md ">Your Profile</p>

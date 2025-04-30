@@ -133,7 +133,9 @@ const CommentPage = () => {
     const getLikeStatus = async (type, typeId, type2) => {
       try {
         const res = await fetch(
-          `http://localhost:5175/api/${type}/${typeId}/isLiked`,
+          `http://localhost:5175/api/${
+            type === "status" ? "post" : "comment"
+          }/${typeId}/isLiked`,
           {
             credentials: "include",
           }
@@ -142,8 +144,11 @@ const CommentPage = () => {
         const data = await res.json();
 
         if (res.ok) {
-          if(type2 === "post") { setIsLikedPost(data.liked); }
-          else { setIsLikedComment(data.liked); }
+          if (type2 === "post") {
+            setIsLikedPost(data.liked);
+          } else {
+            setIsLikedComment(data.liked);
+          }
         }
       } catch (e) {
         console.error(e);

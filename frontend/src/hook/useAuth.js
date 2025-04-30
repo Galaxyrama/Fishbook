@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import userProfile from "../stores/useProfile";
 
 const useAuth = () => {
+  const { deleteProfile, deleteUsername } = userProfile();
+
   const [user, setUser] = useState("");
   const navigate = useNavigate();
 
@@ -16,8 +19,8 @@ const useAuth = () => {
         if (response.ok) {
           setUser(data.user);
         } else {
-          localStorage.removeItem("cachedProfilePic");
-          localStorage.removeItem("cachedUsername");
+          deleteProfile();
+          deleteUsername();
           navigate("/login");
         }
       } catch (error) {

@@ -15,14 +15,10 @@ export const logIn = async (req, res, next) => {
 
     const user = await User.findOne({ email }).select("+password").exec();
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
     const passwordMatch = await bcrypt.compare(password, user.password);
 
-    if (!passwordMatch) {
-      return res.status(400).json({ message: "Password is incorrect!" });
+    if (!user || !passwordMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     req.session.userID = user._id;
@@ -104,6 +100,8 @@ export const getUserDetails = async (req, res) => {
       isMyProfile,
       followingCount: user.followingCount,
       followerCount: user.followerCount,
+      birthDate: user.birthDate,
+      currentLocation: user.currentLocation
     });
   } catch (e) {
     res.status(500).json({ error: "Couldn't get user" });
@@ -115,7 +113,7 @@ export const logOut = (req, res) => {
     if (err) return res.status(500).json({ message: "Logout failed" });
 
     res.clearCookie("sid");
-    res.json({ message: "Logged out successfully" });
+    res.status(200).json({ message: "Logged out successfully" });
   });
 };
 
