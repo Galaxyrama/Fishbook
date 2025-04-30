@@ -38,6 +38,10 @@ const UserPage = () => {
           return;
         }
 
+        if(!data.profile.url) {
+          navigate(`/setup/${data.username}`)
+        }
+        
         setProfilePic(data.profile.url);
         setDescription(data.description);
         setMyProfile(data.isMyProfile);

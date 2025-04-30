@@ -65,7 +65,7 @@ const VideoThumbnail = ({ videoSrc, postId, username, type }) => {
         <video
           ref={videoRef}
           src={videoSrc}
-          className="w-full h-auto rounded-t-md border-1 border-gray-200"
+          className="w-full h-auto rounded-t-md border border-gray-200"
           preload="metadata"
           onEnded={() => setIsPlaying(false)}
           onPause={() => setIsPlaying(false)}

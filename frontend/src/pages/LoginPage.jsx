@@ -140,7 +140,7 @@ const LoginPage = () => {
                 <p className="text-red-700 text-center py-2">{error}</p>
               )}
 
-              <div className="container flex text-dark-blue justify-center mt-1">
+              <div className="container block text-center lg:flex text-dark-blue justify-center mt-1">
                 <p className="mr-2">Not registered yet? </p>
                 <Link to="/register" className="underline font-semibold">
                   Create a new account

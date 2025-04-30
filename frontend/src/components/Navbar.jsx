@@ -1,31 +1,53 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Tooltip } from "flowbite";
-import useAuthStore from "../stores/useAuthStore";
 import useIsOnSetup from "../stores/useIsOnSetup";
 
 const Navbar = () => {
   const searchRef = useRef(null);
   const navigate = useNavigate();
-  const { clearUserId } = useAuthStore();
   const { isOnSetup } = useIsOnSetup();
 
+  const [profilePic, setProfilePic] = useState();
+  const [username, setUsername] = useState();
+
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isOpenModal, setIsOpenModal] = useState(false);
 
   //Makes it so that the tooltip is consistent
   useEffect(() => {
-    const tooltipAppear = () => {
-      const $targetE1 = document.getElementById("tooltip-logout");
-      const $triggerE1 = document.querySelector(
-        '[data-tooltip-target="tooltip-logout"]'
-      );
+    const cached = localStorage.getItem("cachedProfilePic");
+    const username = localStorage.getItem("cachedUsername");
 
-      if ($targetE1 && $triggerE1) {
-        new Tooltip($targetE1, $triggerE1);
-      }
-    };
+    if (cached && username) {
+      setProfilePic(cached);
+      setUsername(username);
+    } else {
+      const getUser = async () => {
+        try {
+          const res = await fetch(`http://localhost:5175/api/user`, {
+            credentials: "include",
+          });
 
-    tooltipAppear();
+          const data = await res.json();
+
+          if (res.ok) {
+            localStorage.setItem("cachedUsername", data.username);
+            setUsername(data.username);
+
+            const img = new Image();
+            img.src = data.profile.url;
+            img.onload = () => {
+              localStorage.setItem("cachedProfilePic", data.profile.url);
+              setProfilePic(data.profile.url);
+            };
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      getUser();
+    }
 
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -47,7 +69,8 @@ const Navbar = () => {
       });
 
       if (response.ok) {
-        clearUserId();
+        localStorage.removeItem("cachedProfilePic");
+        localStorage.removeItem("cachedUsername");
         navigate("/login");
       }
     } catch (error) {
@@ -106,32 +129,37 @@ const Navbar = () => {
           to="/"
           id="title"
           className={`absolute left-1/2 transform -translate-x-1/2 text-white 
-                     text-4xl cursor-pointer transition-all duration-300 z-0`}
+                     text-4xl cursor-pointer transition-all duration-300`}
         >
           Fishbook
         </Link>
-        <img
-          src="/images/logout.png"
-          onClick={handleLogout}
-          className={`bg-white w-10 h-10 ml-auto sm:mr-8 rounded-3xl p-1
+        <div className="relative m-auto mr-4 pl-30">
+          <img
+            src={`${
+              !isOnSetup ? profilePic : "/images/avatar-placeholder.png"
+            }`}
+            onClick={() => setIsOpenModal((prev) => !prev)}
+            className={`w-10 h-10 ml-auto sm:mr-8 rounded-3xl
                       cursor-pointer pointer-events-auto
-                      hover:bg-gray-100 mr-4 `}
-          data-tooltip-target="tooltip-logout"
-        />
-
-        {/* Tooltip */}
-        <div
-          id="tooltip-logout"
-          role="tooltip"
-          className="absolute z-10 invisible 
-                       inline-block px-3 py-2 text-sm 
-                       font-medium text-btn 
-                       bg-white rounded-lg shadow-sm 
-                       opacity-0 transition-opacity 
-                       duration-300 tooltip"
-        >
-          Click to Logout
-          <div className="tooltip-arrow" data-popper-arrow></div>
+                    border border-gray-200 mr-4`}
+          />
+          {isOpenModal && (
+            <div className="absolute top-full right-4 sm:right-10 bg-white rounded-md shadow-md z-50 text-left">
+              <Link to={`/profile/${username}`}>
+                <div className="flex items-center py-2 p-1 hover:bg-gray-100 cursor-pointer rounded-t-md">
+                  <img src="/images/user.png" className="w-6 h-6 mr-2" />
+                  <p className="cursor-pointer rounded-t-md ">Your Profile</p>
+                </div>
+              </Link>
+              <div
+                className="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded-b-md"
+                onClick={handleLogout}
+              >
+                <img src="/images/logout.png" className="w-6 h-6 mr-2" />
+                <p className=" text-red-500">Log out</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
