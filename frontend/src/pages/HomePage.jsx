@@ -74,7 +74,6 @@ const HomePage = () => {
         }
       };
 
-      document.documentElement.scrollTop = 0;
       getUser();
       getPosts();
 
