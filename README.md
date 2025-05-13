@@ -22,7 +22,7 @@
 ### 1. Clone the Repository
 
 ```bash
-cd ...<your folder>
+cd your_folder_here
 git clone https://github.com/Galaxyrama/Fishbook.git
 cd fishbook
 code .
@@ -37,7 +37,7 @@ npm install
 ```
 
 ### 3. Set up the .env file
-- Create a `.env` file inside of the `backend` folder
+- Create a `.env` file inside of the backend folder
 
 ![image](https://github.com/user-attachments/assets/6b12543a-8acc-4c49-93ea-64409a70e2ff)
 
@@ -46,16 +46,19 @@ Insert this inside the .env file
 PORT = 5175
 
 MONGO_CONNECTION_STRING = your_database_url_here
+
 SESSION_SECRET = your_secret_key
 
 CLOUDINARY_CLOUD_NAME = your_cloudinary_name
+
 CLOUDINARY_API_KEY = your_cloudinary_api_key
+
 CLOUDINARY_SECRET = your_cloudinary_secret
 
 ### 4. Run the Backend
 
 ```
-npm run dev
+npm start
 ```
 
 ### 5. Set Up the Frontend
@@ -70,3 +73,5 @@ npm install
 ```
 npm run dev
 ```
+
+**Note: The frontend and backend must run on separate terminal.**
