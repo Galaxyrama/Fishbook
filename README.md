@@ -1,5 +1,10 @@
 # Fishbook - A Full-Stack Social Media
 
+## Prerequisites
+
+- A cloud MongoDB account
+- A Cloudinary account
+
 ## Features
 
 - User registration & login (with sessions/cookies)
@@ -12,12 +17,12 @@
 
 - **Frontend**: React, TailwindCSS
 - **Backend**: Node.js, Express
-- **Database**: MongoDB w/ Cloudinary for images
+- **Database**: MongoDB w/ Cloudinary for storing images
 - **Auth**: Cookie-based authentication
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### 1. Clone the Repository
 
