@@ -79,4 +79,5 @@ npm install
 npm run dev
 ```
 
-**Note: The frontend and backend must run on separate terminal.**
+> [!IMPORTANT]
+> The frontend and backend must run on separate terminals.
