@@ -1,5 +1,8 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
+import { BsFileEarmarkImage } from "react-icons/bs";
+import { HiGif } from "react-icons/hi2";
+import { FaFileVideo } from "react-icons/fa";
 
 const ReplyComponent = ({ type, commentedOnId }) => {
   const textareaRef = useRef(null);
@@ -184,10 +187,9 @@ const ReplyComponent = ({ type, commentedOnId }) => {
             <div className="flex gap-3 float-right">
               {/* Add Image */}
               <label htmlFor="imgUpload">
-                <img
-                  src="/images/photo.png"
+                <BsFileEarmarkImage
                   className="w-8 h-8 cursor-pointer"
-                  alt="Photo"
+                  color="#7fcdff"
                 />
               </label>
 
@@ -203,11 +205,7 @@ const ReplyComponent = ({ type, commentedOnId }) => {
 
               {/* Add Gif */}
               <label htmlFor="gifUpload">
-                <img
-                  src="/images/gif.png"
-                  className="w-8 h-8 cursor-pointer"
-                  alt="Gif"
-                />
+                <HiGif className="w-8 h-8 cursor-pointer" color="#7fcdff" />
               </label>
 
               <input
@@ -222,10 +220,9 @@ const ReplyComponent = ({ type, commentedOnId }) => {
 
               {/* Video upload */}
               <label htmlFor="videoUpload">
-                <img
-                  src="/images/video.png"
+                <FaFileVideo
                   className="w-8 h-8 cursor-pointer"
-                  alt="Video"
+                  color="#7fcdff"
                 />
               </label>
 

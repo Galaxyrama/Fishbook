@@ -1,5 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { BsFileEarmarkImage } from "react-icons/bs";
+import { HiGif } from "react-icons/hi2";
+import { FaFileVideo } from "react-icons/fa";
 
 const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
   const modalRef = useRef(null);
@@ -184,9 +187,9 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
             {/* Image Upload */}
             <div className="flex gap-3">
               <label htmlFor="imgUpload" className="cursor-pointer">
-                <img
-                  src="/images/photo.png"
+                <BsFileEarmarkImage
                   className="w-10 h-10 cursor-pointer"
+                  color="#7fcdff"
                 />
               </label>
               <input
@@ -201,10 +204,7 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
 
               {/* Gif upload */}
               <label htmlFor="gifUpload" className="cursor-pointer">
-                <img
-                  src="/images/gif.png"
-                  className="w-10 h-10 cursor-pointer"
-                />
+                <HiGif className="w-10 h-10 cursor-pointer" color="#7fcdff" />
               </label>
               <input
                 type="file"
@@ -218,9 +218,9 @@ const EditPostComponent = ({ post, onClose, isImg, isVideo, type }) => {
 
               {/* Video upload */}
               <label htmlFor="videoUpload">
-                <img
-                  src="/images/video.png"
-                  className="w-10 h-10 cursor-pointer h"
+                <FaFileVideo
+                  className="w-10 h-10 cursor-pointer"
+                  color="#7fcdff"
                 />
               </label>
               <input

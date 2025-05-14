@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useIsOnSetup from "../stores/useIsOnSetup";
 import userProfile from "../stores/useProfile";
+import { IoPersonSharp, IoSearch } from "react-icons/io5";
+import { IoIosLogOut } from "react-icons/io";
+import { FaArrowLeft } from "react-icons/fa6";
 
 const Navbar = () => {
   const searchRef = useRef(null);
@@ -83,9 +86,9 @@ const Navbar = () => {
           ref={searchRef}
         >
           <div className="flex items-center">
-            <img
-              src="/images/arrow.png"
+            <FaArrowLeft
               className="w-6 h-6 cursor-pointer ml-2"
+              color="#7fcdff"
               onClick={openSearch}
             />
             <input
@@ -110,10 +113,10 @@ const Navbar = () => {
       >
         {!isOnSetup && (
           <div className="bg-white ml-8 rounded-full">
-            <img
+            <IoSearch
               id="searchBtn"
-              src="/images/search.png"
-              className="p-2 w-10 cursor-pointer"
+              className="p-2 w-10 h-10 cursor-pointer"
+              color="#7fcdff"
               onClick={openSearch}
             />
           </div>
@@ -129,7 +132,9 @@ const Navbar = () => {
         <div className="relative m-auto mr-4 pl-30">
           <img
             src={`${
-              !isOnSetup ? user.currentProfile : "/images/avatar-placeholder.png"
+              !isOnSetup
+                ? user.currentProfile
+                : "/images/avatar-placeholder.png"
             }`}
             onClick={() => setIsOpenModal((prev) => !prev)}
             className={`w-10 h-10 ml-auto sm:mr-8 rounded-3xl
@@ -140,7 +145,7 @@ const Navbar = () => {
             <div className="absolute top-full right-4 sm:right-10 bg-white rounded-md shadow-md z-50 text-left">
               <Link to={`/profile/${user.currentUsername}`}>
                 <div className="flex items-center py-2 p-1 hover:bg-gray-100 cursor-pointer rounded-t-md">
-                  <img src="/images/user.png" className="w-6 h-6 mr-2" />
+                  <IoPersonSharp className="w-6 h-6 mr-2" />
                   <p className="cursor-pointer rounded-t-md ">Your Profile</p>
                 </div>
               </Link>
@@ -148,7 +153,7 @@ const Navbar = () => {
                 className="flex items-center p-2 hover:bg-gray-100 cursor-pointer rounded-b-md"
                 onClick={handleLogout}
               >
-                <img src="/images/logout.png" className="w-6 h-6 mr-2" />
+                <IoIosLogOut className="w-7 h-7 mr-2" color="red" />
                 <p className=" text-red-500">Log out</p>
               </div>
             </div>

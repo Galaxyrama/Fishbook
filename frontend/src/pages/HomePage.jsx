@@ -3,6 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../hook/useAuth";
 import Navbar from "../components/Navbar";
 import Post from "../components/Post";
+import { BsFileEarmarkImage } from "react-icons/bs";
+import { HiGif } from "react-icons/hi2";
+import { FaFileVideo } from "react-icons/fa";
 
 const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -190,7 +193,6 @@ const HomePage = () => {
 
       {username && profilePicture && (
         <div>
-          
           <div className="flex justify-center w-full pb-5 pt-20 px-2">
             <div className="w-full max-w-3xl">
               <div className="flex items-center gap-4 rounded-lg drop-shadow-xl py-6 bg-white px-4">
@@ -296,10 +298,9 @@ const HomePage = () => {
                     {/* Image Upload */}
                     <div className="flex gap-3">
                       <label htmlFor="imgUpload">
-                        <img
-                          src="/images/photo.png"
+                        <BsFileEarmarkImage
                           className="w-10 h-10 cursor-pointer"
-                          alt="Photo"
+                          color="#7fcdff"
                         />
                       </label>
                       <input
@@ -314,10 +315,9 @@ const HomePage = () => {
 
                       {/* Gif upload */}
                       <label htmlFor="gifUpload">
-                        <img
-                          src="/images/gif.png"
+                        <HiGif
                           className="w-10 h-10 cursor-pointer"
-                          alt="Gif"
+                          color="#7fcdff"
                         />
                       </label>
                       <input
@@ -332,10 +332,9 @@ const HomePage = () => {
 
                       {/* Video upload */}
                       <label htmlFor="videoUpload">
-                        <img
-                          src="/images/video.png"
+                        <FaFileVideo
                           className="w-10 h-10 cursor-pointer"
-                          alt="Video"
+                          color="#7fcdff"
                         />
                       </label>
                       <input

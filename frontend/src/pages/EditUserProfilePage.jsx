@@ -5,6 +5,10 @@ import Cropper from "react-easy-crop";
 import getCroppedImg from "../utils/cropImage.js";
 import useAuth from "../hook/useAuth.js";
 import userProfile from "../stores/useProfile.js";
+import { IoPersonSharp } from "react-icons/io5";
+import { FaCalendar } from "react-icons/fa";
+import { PiGenderIntersex } from "react-icons/pi";
+import { FaLocationDot } from "react-icons/fa6";
 
 const EditUserProfilePage = () => {
   const { changeProfile, changeUsername } = userProfile();
@@ -214,10 +218,7 @@ const EditUserProfilePage = () => {
                 Username
               </label>
               <div className="relative">
-                <img
-                  src="/images/user.png"
-                  className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                />
+                <IoPersonSharp className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                 <input
                   type="text"
                   placeholder="Enter your username"
@@ -260,10 +261,7 @@ const EditUserProfilePage = () => {
                   Birth Date
                 </label>
                 <div className="relative">
-                  <img
-                    src="/images/calendar.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                  />
+                  <FaCalendar className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                   <input
                     type="date"
                     placeholder="Enter your username"
@@ -285,10 +283,7 @@ const EditUserProfilePage = () => {
                 Gender
               </label>
               <div className="relative">
-                <img
-                  src="/images/gender.png"
-                  className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                />
+                <PiGenderIntersex className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                 <select
                   name="gender"
                   id="gender"
@@ -312,10 +307,7 @@ const EditUserProfilePage = () => {
                   Country
                 </label>
                 <div className="relative">
-                  <img
-                    src="/images/location.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                  />
+                  <FaLocationDot className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                   <select
                     type="text"
                     placeholder="Select your current country"
