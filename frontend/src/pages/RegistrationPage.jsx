@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import LoginRegisterRightSide from "../components/LoginRegisterRightSide";
 import { Link, useNavigate } from "react-router-dom";
+import { FaLock } from "react-icons/fa6";
+import { MdEmail } from "react-icons/md";
+import { IoPersonSharp } from "react-icons/io5";
 
 const RegistrationPage = () => {
   const [password, setPassword] = useState("");
@@ -25,7 +28,7 @@ const RegistrationPage = () => {
         body: JSON.stringify({ username, email, password }),
       });
 
-      if(response.ok) {
+      if (response.ok) {
         navigate("/login");
       }
     } else {
@@ -77,10 +80,7 @@ const RegistrationPage = () => {
                   Username
                 </label>
                 <div className="relative mb-5">
-                  <img
-                    src="images/user.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                  />
+                  <IoPersonSharp className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                   <input
                     type="text"
                     placeholder="Enter a username"
@@ -101,10 +101,7 @@ const RegistrationPage = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <img
-                    src="images/email.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-5.5 w-6 h-6"
-                  />
+                  <MdEmail className="absolute left-4 top-1/2 transform -translate-y-5.5 w-6 h-6" />
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -124,10 +121,7 @@ const RegistrationPage = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <img
-                    src="images/padlock.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6"
-                  />
+                  <FaLock className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6" />
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
@@ -153,10 +147,7 @@ const RegistrationPage = () => {
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <img
-                    src="images/padlock.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6"
-                  />
+                  <FaLock className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6" />
                   <input
                     type={showPassword2 ? "text" : "password"}
                     placeholder="Confirm your password"

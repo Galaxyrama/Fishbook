@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import LoginRegisterRightSide from "../components/LoginRegisterRightSide";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../stores/useAuthStore";
+import { FaLock } from "react-icons/fa6";
+import { MdEmail } from "react-icons/md";
 
 const LoginPage = () => {
   const [password, setPassword] = useState("");
@@ -76,10 +78,7 @@ const LoginPage = () => {
                   Email Address
                 </label>
                 <div className="relative">
-                  <img
-                    src="images/email.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6"
-                  />
+                  <MdEmail className="absolute left-4 top-1/2 transform -translate-y-3 w-6 h-6" />
                   <input
                     type="email"
                     placeholder="Enter your email"
@@ -99,10 +98,7 @@ const LoginPage = () => {
                   Password
                 </label>
                 <div className="relative">
-                  <img
-                    src="images/padlock.png"
-                    className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6"
-                  />
+                  <FaLock className="absolute left-4 top-1/2 transform -translate-y-6 w-6 h-6" />
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
