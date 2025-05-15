@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
+import { FaTrashAlt } from "react-icons/fa";
 
 const DeletePostComponent = ({ PostId, GoToHome, Type }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -97,8 +98,8 @@ const DeletePostComponent = ({ PostId, GoToHome, Type }) => {
 
   return (
     <div>
-      <div className="flex" onClick={openModal}>
-        <img src="/images/delete.png" alt="Delete" className="w-5 h-5 mr-2" />
+      <div className="flex text-red-500" onClick={openModal}>
+        <FaTrashAlt className="w-5 h-5 mr-2 " />
         <p>Delete {Type.charAt(0).toUpperCase() + String(Type).slice(1)}</p>
       </div>
 

@@ -192,7 +192,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="bg-background font-montagu h-full">
+    <div className="font-montagu h-full">
       <Navbar />
 
       {username && profilePicture && (

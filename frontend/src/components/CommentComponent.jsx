@@ -4,6 +4,7 @@ import ShareLinkComponent from "./ShareLinkComponent";
 import DeletePostComponent from "./DeletePostComponent";
 import EditPostComponent from "./EditPostComponent";
 import VideoThumbnail from "./VideoThumbnail";
+import { FaPen } from "react-icons/fa6";
 
 const CommentComponent = ({ Comment }) => {
   const tooltipCommentId = `tooltip-comment-${Comment.userId._id}`;
@@ -155,20 +156,16 @@ const CommentComponent = ({ Comment }) => {
                 •••
               </p>
               {isOpenModal && (
-                <div className="absolute z-1 rounded bg-white right-0 w-41">
+                <div className="absolute z-1 rounded bg-white right-0 w-52">
                   <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-                  <div className="border border-gray-200 rounded shadow bg-white w-41">
+                  <div className="border border-gray-200 rounded shadow bg-white w-52">
                     <div
                       className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                       onClick={handleEditClick}
                     >
                       <div className="flex">
-                        <img
-                          src="/images/edit.png"
-                          alt="Edit"
-                          className="w-5 h-5 mr-2"
-                        />
-                        <p>Edit Post</p>
+                        <FaPen className="w-5 h-5 mr-2" />
+                        <p>Edit Comment</p>
                       </div>
                     </div>
                     <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">

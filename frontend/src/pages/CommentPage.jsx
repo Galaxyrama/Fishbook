@@ -8,6 +8,8 @@ import VideoThumbnail from "../components/VideoThumbnail";
 import useAuth from "../hook/useAuth";
 import DeletePostComponent from "../components/DeletePostComponent";
 import EditPostComponent from "../components/EditPostComponent";
+import CommentSkeleton from "../components/CommentSkeleton";
+import { FaPen } from "react-icons/fa6";
 
 const CommentPage = () => {
   useAuth();
@@ -43,9 +45,11 @@ const CommentPage = () => {
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
+    setIsLoading(true);
 
     const tooltipAppear = () => {
       const $targetE1 = document.getElementById(tooltipCommentId);
@@ -80,6 +84,7 @@ const CommentPage = () => {
           setPost(data.post);
           setSameUser(data.sameUser);
           setType(data.type);
+          setIsLoading(false);
         }
       } catch (e) {
         console.error(e);
@@ -200,197 +205,200 @@ const CommentPage = () => {
   return (
     <div className={`min-h-screen bg-background font-montagu`}>
       <Navbar />
+      {isLoading ? (
+        <CommentSkeleton />
+      ) : (
+        <div className="flex justify-center px-2 pt-20 pb-5">
+          <div className="block px-5 w-3xl pt-2 bg-white rounded-xl drop-shadow-xl">
+            {/* Post block */}
+            <div className="flex py-2">
+              <div className="flex-shrink-0 w-12 mr-3">
+                <Link to={`/profile/${username}`}>
+                  <img
+                    src={post?.userId?.profilePic?.url}
+                    className="w-12 h-12 rounded-full border border-gray-200"
+                  />
+                </Link>
 
-      <div className="flex justify-center px-2 pt-20 pb-5">
-        <div className="block px-5 max-w-3xl pt-2 bg-white rounded-xl drop-shadow-xl">
-          {/* Post block */}
-          <div className="flex py-2">
-            <div className="flex-shrink-0 w-12 mr-3">
-              <Link to={`/profile/${username}`}>
-                <img
-                  src={post?.userId?.profilePic?.url}
-                  className="w-12 h-12 rounded-full border border-gray-200"
-                />
-              </Link>
-
-              {/* Vertical divider */}
-              <Link
-                to={`/${post?.userId?.username}/${
-                  currentComment?.commentedOnModel === "Post"
-                    ? "status"
-                    : "comment"
-                }/${post?._id}`}
-              >
-                <div className="w-[4px] h-full bg-btn mx-5" />
-              </Link>
-            </div>
-            <div className="block w-full">
-              <div className="flex justify-between">
-                <Link to={`/profile/${post?.userId?.username}`}>
-                  <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
-                    {post?.userId?.username}
-                  </p>
+                {/* Vertical divider */}
+                <Link
+                  to={`/${post?.userId?.username}/${
+                    currentComment?.commentedOnModel === "Post"
+                      ? "status"
+                      : "comment"
+                  }/${post?._id}`}
+                >
+                  <div className="w-[4px] h-full bg-btn mx-5" />
                 </Link>
               </div>
-              <p className="flex text-gray-500 select-none mb-2">
-                {formattedDate(post?.createdAt)}
-              </p>
-              <Link
-                to={`/${post?.userId?.username}/${
-                  currentComment?.commentedOnModel === "Post"
-                    ? "status"
-                    : "comment"
-                }/${post?._id}`}
-              >
-                <p className="text-justify mb-2">{post?.postTitle}</p>
-                {isPostImg && post?.postImage?.url && (
-                  <img
-                    src={post?.postImage?.url}
-                    className="w-full rounded-sm border border-gray-200"
-                  />
-                )}
-              </Link>
+              <div className="block w-full">
+                <div className="flex justify-between">
+                  <Link to={`/profile/${post?.userId?.username}`}>
+                    <p className="text-xl font-semibold cursor-pointer inline-block hover:text-btn">
+                      {post?.userId?.username}
+                    </p>
+                  </Link>
+                </div>
+                <p className="flex text-gray-500 select-none mb-2">
+                  {formattedDate(post?.createdAt)}
+                </p>
+                <Link
+                  to={`/${post?.userId?.username}/${
+                    currentComment?.commentedOnModel === "Post"
+                      ? "status"
+                      : "comment"
+                  }/${post?._id}`}
+                >
+                  <p className="text-justify mb-2">{post?.postTitle}</p>
+                  {isPostImg && post?.postImage?.url && (
+                    <img
+                      src={post?.postImage?.url}
+                      className="w-full rounded-sm border border-gray-200"
+                    />
+                  )}
+                </Link>
 
-              {isPostVideo && post?.postImage?.url && (
-                <VideoThumbnail videoSrc={post?.postImage?.url} />
-              )}
-              <div className="flex justify-between px-5 py-2">
-                {/* Comments */}
-                <div
-                  className="flex select-none cursor-pointer"
-                  data-tooltip-target={tooltipCommentId}
-                >
-                  <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-                  <p>{post?.commentCount}</p>
-                </div>
-                {/* Likes */}
-                <div
-                  className="flex select-none cursor-pointer"
-                  data-tooltip-target={tooltipLikeId}
-                >
-                  <img
-                    src={`/images/${isLikedPost ? "heart-liked" : "heart"}.png`}
-                    alt="like"
-                    className="w-6 h-6 mr-1"
+                {isPostVideo && post?.postImage?.url && (
+                  <VideoThumbnail videoSrc={post?.postImage?.url} />
+                )}
+                <div className="flex justify-between px-5 py-2">
+                  {/* Comments */}
+                  <div
+                    className="flex select-none cursor-pointer"
+                    data-tooltip-target={tooltipCommentId}
+                  >
+                    <img src="/images/comment.png" className="w-6 h-6 mr-1" />
+                    <p>{post?.commentCount}</p>
+                  </div>
+                  {/* Likes */}
+                  <div
+                    className="flex select-none cursor-pointer"
+                    data-tooltip-target={tooltipLikeId}
+                  >
+                    <img
+                      src={`/images/${
+                        isLikedPost ? "heart-liked" : "heart"
+                      }.png`}
+                      alt="like"
+                      className="w-6 h-6 mr-1"
+                    />
+                    <p>{postLikeCount}</p>
+                  </div>
+                  {/* Share Link */}
+                  <ShareLinkComponent
+                    type={"status"}
+                    username={post?.userId?.username}
+                    id={post?._id}
                   />
-                  <p>{postLikeCount}</p>
                 </div>
-                {/* Share Link */}
-                <ShareLinkComponent
-                  type={"status"}
-                  username={post?.userId?.username}
-                  id={post?._id}
+                <hr className="mt-2" />
+              </div>
+            </div>
+
+            {/* Current comment block */}
+            <div className="flex py-2 w-full">
+              <div className="flex-shrink-0 w-12 mr-3 flex">
+                <img
+                  src={currentComment?.userId?.profilePic?.url}
+                  className="w-12 h-12 rounded-full mr-3 border border-gray-200"
                 />
               </div>
-              <hr className="mt-2" />
-            </div>
-          </div>
-
-          {/* Current comment block */}
-          <div className="flex py-2 w-full">
-            <div className="flex-shrink-0 w-12 mr-3 flex">
-              <img
-                src={currentComment?.userId?.profilePic?.url}
-                className="w-12 h-12 rounded-full mr-3 border border-gray-200"
-              />
-            </div>
-            <div className="flex w-full items-center justify-between">
-              <Link to={`/profile/${username}`}>
-                <p className="text-xl font-semibold cursor-pointer inline-block my-2 hover:text-btn">
-                  {username}
-                </p>
-              </Link>
-              {/* Three buttons */}
-              {sameUser && (
-                <div className="relative inline-block float-right">
-                  <p
-                    className="text-2xl select-none cursor-pointer hover:text-btn"
-                    onClick={handleOptions}
-                  >
-                    •••
+              <div className="flex w-full items-center justify-between">
+                <Link to={`/profile/${username}`}>
+                  <p className="text-xl font-semibold cursor-pointer inline-block my-2 hover:text-btn">
+                    {username}
                   </p>
-                  {isOpenModal && (
-                    <div className="absolute z-1 rounded bg-white right-0 w-52">
-                      <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200 " />
-                      <div className="border border-gray-200 rounded shadow bg-white w-52">
-                        <div
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={handleEditClick}
-                        >
-                          <div className="flex">
-                            <img
-                              src="/images/edit.png"
-                              alt="Edit"
-                              className="w-5 h-5 mr-2"
+                </Link>
+                {/* Three buttons */}
+                {sameUser && (
+                  <div className="relative inline-block float-right">
+                    <p
+                      className="text-2xl select-none cursor-pointer hover:text-btn"
+                      onClick={handleOptions}
+                    >
+                      •••
+                    </p>
+                    {isOpenModal && (
+                      <div className="absolute z-1 rounded bg-white right-0 w-52">
+                        <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200 " />
+                        <div className="border border-gray-200 rounded shadow bg-white w-52">
+                          <div
+                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={handleEditClick}
+                          >
+                            <div className="flex">
+                              <FaPen className="w-5 h-5 mr-2" />
+                              <p>Edit Comment</p>
+                            </div>
+                          </div>
+                          <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                            <DeletePostComponent
+                              PostId={Comment._id}
+                              GoToHome={true}
+                              Type={"comment"}
                             />
-                            <p>Edit Comment</p>
                           </div>
                         </div>
-                        <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                          <DeletePostComponent
-                            PostId={Comment._id}
-                            GoToHome={true}
-                            Type={"comment"}
-                          />
-                        </div>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-          <div>
-            <div className="block w-full">
-              <p className="text-justify pb-2">{currentComment?.postTitle}</p>
-              {currentComment?.postImage?.url && isCommentImg && (
-                <img
-                  src={currentComment?.postImage?.url}
-                  className="border border-gray-200 rounded-sm w-full"
-                />
-              )}
-              <div className="flex text-gray-500 select-none pt-2 text-[13px]">
-                {dateUpload}
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-          <hr className="mt-2" />
-          <div className="flex justify-between sm:justify-around px-10 py-2">
-            {/* Comments */}
-            <div
-              className="flex select-none cursor-pointer items-center"
-              data-tooltip-target={tooltipCommentId2}
-            >
-              <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-              <p>{currentComment?.commentCount}</p>
+            <div>
+              <div className="block w-full">
+                <p className="text-justify pb-2">{currentComment?.postTitle}</p>
+                {currentComment?.postImage?.url && isCommentImg && (
+                  <img
+                    src={currentComment?.postImage?.url}
+                    className="border border-gray-200 rounded-sm w-full"
+                  />
+                )}
+                <div className="flex text-gray-500 select-none pt-2 text-[13px]">
+                  {dateUpload}
+                </div>
+              </div>
             </div>
-            {/* Likes */}
-            <div
-              className="flex select-none cursor-pointer items-center"
-              data-tooltip-target={tooltipLikeId2}
-            >
-              <img
-                src={`/images/${isLikedComment ? "heart-liked" : "heart"}.png`}
-                alt=""
-                className="w-6 h-6 mr-1"
-              />
-              <p>{commentLikeCount}</p>
+            <hr className="mt-2" />
+            <div className="flex justify-between sm:justify-around px-10 py-2">
+              {/* Comments */}
+              <div
+                className="flex select-none cursor-pointer items-center"
+                data-tooltip-target={tooltipCommentId2}
+              >
+                <img src="/images/comment.png" className="w-6 h-6 mr-1" />
+                <p>{currentComment?.commentCount}</p>
+              </div>
+              {/* Likes */}
+              <div
+                className="flex select-none cursor-pointer items-center"
+                data-tooltip-target={tooltipLikeId2}
+              >
+                <img
+                  src={`/images/${
+                    isLikedComment ? "heart-liked" : "heart"
+                  }.png`}
+                  alt=""
+                  className="w-6 h-6 mr-1"
+                />
+                <p>{commentLikeCount}</p>
+              </div>
+              {/* Share Link */}
+              <ShareLinkComponent type={"status"} />
             </div>
-            {/* Share Link */}
-            <ShareLinkComponent type={"status"} />
+            <hr />
+
+            {/* Post comment block */}
+            <ReplyComponent type={"Comment"} commentedOnId={id} />
+
+            {comments.map((comment) => (
+              <CommentComponent Comment={comment} key={comment._id} />
+            ))}
+
+            <hr className="py-2" />
           </div>
-          <hr />
-
-          {/* Post comment block */}
-          <ReplyComponent type={"Comment"} commentedOnId={id} />
-
-          {comments.map((comment) => (
-            <CommentComponent Comment={comment} key={comment._id} />
-          ))}
-
-          <hr className="py-2" />
         </div>
-      </div>
+      )}
 
       {/* Tooltip for Comment post*/}
       <div
