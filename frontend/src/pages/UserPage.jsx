@@ -3,6 +3,8 @@ import Post from "../components/Post";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useAuth from "../hook/useAuth";
+import PostSkeleton from "../components/PostSkeleton";
+import UserPageSkeleton from "../components/UserPageSkeleton";
 
 const UserPage = () => {
   useAuth();
@@ -21,6 +23,9 @@ const UserPage = () => {
   const [hookers, setHookers] = useState(0);
   const [hooked, setHooked] = useState(0);
 
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -38,15 +43,16 @@ const UserPage = () => {
           return;
         }
 
-        if(!data.profile.url) {
-          navigate(`/setup/${data.username}`)
+        if (!data.profile.url) {
+          navigate(`/setup/${data.username}`);
         }
-        
+
         setProfilePic(data.profile.url);
         setDescription(data.description);
         setMyProfile(data.isMyProfile);
         setHookers(data.followerCount);
         setHooked(data.followingCount);
+        setIsUserLoading(false);
 
         setBtnText(data.isMyProfile ? "Edit Account" : "Get Hooked");
       } catch (e) {
@@ -68,6 +74,7 @@ const UserPage = () => {
         if (response.ok) {
           setPosts(data);
           setCasts(data.length);
+          setIsLoading(false);
           return;
         }
       } catch (e) {
@@ -134,7 +141,9 @@ const UserPage = () => {
   return (
     <div className={`bg-background min-h-screen font-montagu`}>
       <Navbar />
-      {profilePic && description && (
+      {isUserLoading ? (
+        <UserPageSkeleton />
+      ) : (
         <div className="flex w-full justify-center pt-25 sm:px-16">
           <div className="block w-full max-w-3xl justify-center">
             <div className="block sm:flex w-full">
@@ -181,8 +190,12 @@ const UserPage = () => {
 
       <hr className="my-5 border-gray-600" />
 
-      {posts &&
-        posts.map((post) => <Post Post={post} Home={false} key={post._id} />)}
+      {isLoading
+        ? Array.from({ length: 3 }).map((_, index) => (
+            <PostSkeleton key={index} revealParts={false} />
+          ))
+        : posts &&
+          posts.map((post) => <Post Post={post} Home={false} key={post._id} />)}
     </div>
   );
 };
