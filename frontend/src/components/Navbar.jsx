@@ -101,6 +101,7 @@ const Navbar = () => {
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   navigate(`/profile/${e.target.value}`);
+                  openSearch();
                 }
               }}
             />
