@@ -6,6 +6,7 @@ import Post from "../components/Post";
 import { BsFileEarmarkImage } from "react-icons/bs";
 import { HiGif } from "react-icons/hi2";
 import { FaFileVideo } from "react-icons/fa";
+import PostSkeleton from "../components/PostSkeleton";
 
 const HomePage = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,6 +25,8 @@ const HomePage = () => {
   const [isVideo, setIsVideo] = useState(false);
 
   const [uploaded, setUploaded] = useState(); //just need the state to keep changing
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const openModal = () => {
     setIsOpen(true);
@@ -71,6 +74,7 @@ const HomePage = () => {
 
           if (response.ok) {
             setPosts(data);
+            setIsLoading(false);
           }
         } catch (e) {
           console.error(e);
@@ -215,10 +219,14 @@ const HomePage = () => {
             </div>
           </div>
 
-          {posts &&
-            posts.map((post) => (
-              <Post Post={post} Home={true} key={post._id} />
-            ))}
+          {isLoading
+            ? Array.from({ length: 3 }).map((_, index) => (
+                <PostSkeleton key={index} revealParts={false} />
+              ))
+            : posts &&
+              posts.map((post) => (
+                <Post Post={post} Home={true} key={post._id} />
+              ))}
 
           {/* Modal for Create Post */}
           {isOpen && (

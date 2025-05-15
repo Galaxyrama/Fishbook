@@ -8,6 +8,7 @@ import ShareLinkComponent from "../components/ShareLinkComponent";
 import DeletePostComponent from "../components/DeletePostComponent";
 import EditPostComponent from "../components/EditPostComponent";
 import ReplyComponent from "../components/ReplyComponent";
+import PostSkeleton from "../components/PostSkeleton";
 
 const PostPage = () => {
   useAuth();
@@ -33,6 +34,8 @@ const PostPage = () => {
 
   //For comment
   const [comments, setComments] = useState([]);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     document.documentElement.scrollTop = 0;
@@ -75,6 +78,7 @@ const PostPage = () => {
           setLikeAmount(data.post.likeCount);
           setIsLiked(data.liked);
           setSameUser(data.sameUser);
+          setIsLoading(false);
         }
       } catch (e) {
         console.error(e);
@@ -179,121 +183,127 @@ const PostPage = () => {
   return (
     <div className={`font-montagu min-h-screen bg-background`}>
       <Navbar />
-
-      {/* Post block */}
-      <div className="flex justify-center px-2 pt-20 pb-10">
-        <div className="block px-5 max-w-3xl bg-white rounded-xl drop-shadow-xl">
-          <div className="flex items-center justify-between py-3">
-            <div className="flex gap-3 items-center">
-              <Link to={`/profile/${username}`}>
-                {post?.userId?.profilePic?.url && (
-                  <img
-                    src={post.userId?.profilePic.url}
-                    className="w-12 h-12 rounded-full border-1 border-gray-200"
-                  />
-                )}
-              </Link>
-              <Link to={`/profile/${username}`}>
-                <p
-                  className="text-xl font-semibold cursor-pointer
+      {isLoading ? (
+        <PostSkeleton revealParts={true} />
+      ) : (
+        <div className="flex justify-center px-2 pt-20 pb-10">
+          <div className="block px-5 w-3xl bg-white rounded-xl drop-shadow-xl">
+            <div className="flex items-center justify-between py-3">
+              <div className="flex gap-3 items-center">
+                <Link to={`/profile/${username}`}>
+                  {post?.userId?.profilePic?.url && (
+                    <img
+                      src={post.userId?.profilePic.url}
+                      className="w-12 h-12 rounded-full border-1 border-gray-200"
+                    />
+                  )}
+                </Link>
+                <Link to={`/profile/${username}`}>
+                  <p
+                    className="text-xl font-semibold cursor-pointer
                                inline-block max-w-max hover:text-btn"
-                >
-                  {username}
-                </p>
-              </Link>
-            </div>
-            {sameUser && (
-              <div className="relative inline-block">
-                <p
-                  className="text-2xl select-none cursor-pointer hover:text-btn"
-                  onClick={handleOptions}
-                >
-                  •••
-                </p>
-                {isOpenModal && (
-                  <div className="absolute z-1 rounded bg-white right-0 w-41">
-                    <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
-                    <div className="border border-gray-200 rounded shadow bg-white w-41">
-                      <div
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={handleEditClick}
-                      >
-                        <div className="flex">
-                          <img
-                            src="/images/edit.png"
-                            alt="Edit"
-                            className="w-5 h-5 mr-2"
+                  >
+                    {username}
+                  </p>
+                </Link>
+              </div>
+              {sameUser && (
+                <div className="relative inline-block">
+                  <p
+                    className="text-2xl select-none cursor-pointer hover:text-btn"
+                    onClick={handleOptions}
+                  >
+                    •••
+                  </p>
+                  {isOpenModal && (
+                    <div className="absolute z-1 rounded bg-white right-0 w-41">
+                      <div className="absolute right-3 -top-2 w-3 h-3 rotate-45 bg-white border-l border-t border-gray-200" />
+                      <div className="border border-gray-200 rounded shadow bg-white w-41">
+                        <div
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={handleEditClick}
+                        >
+                          <div className="flex">
+                            <img
+                              src="/images/edit.png"
+                              alt="Edit"
+                              className="w-5 h-5 mr-2"
+                            />
+                            <p>Edit Post</p>
+                          </div>
+                        </div>
+                        <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                          <DeletePostComponent
+                            PostId={id}
+                            GoToHome={true}
+                            Type={"post"}
                           />
-                          <p>Edit Post</p>
                         </div>
                       </div>
-                      <div className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <DeletePostComponent
-                          PostId={id}
-                          GoToHome={true}
-                          Type={"post"}
-                        />
-                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
+            </div>
+            {post?.postTitle && (
+              <p className="text-justify pb-3">{postTitle}</p>
             )}
-          </div>
-          {post?.postTitle && <p className="text-justify pb-3">{postTitle}</p>}
-          {postFile && isImg && (
-            <img
-              src={postFile}
-              className="w-full border border-gray-200 rounded-md"
-            />
-          )}
-          {postFile && isVideo && (
-            <VideoThumbnail
-              videoSrc={postFile}
-              postId={id}
-              username={username}
-              type={"status"}
-            />
-          )}
-          <div className="flex text-gray-500 select-none py-3 text-[13px]">
-            <p>{dateUpload}</p>
-          </div>
-          <hr />
-          <div className="flex justify-between mr-10 ml-15 py-2">
-            {/* Comments */}
-            <div
-              className="flex select-none cursor-pointer"
-              data-tooltip-target={tooltipCommentId}
-            >
-              <img src="/images/comment.png" className="w-6 h-6 mr-1" />
-              <p>{post?.commentCount}</p>
-            </div>
-            {/* Likes */}
-            <div
-              className="flex select-none cursor-pointer"
-              data-tooltip-target={tooltipLikeId}
-              onClick={handleLike}
-            >
+            {postFile && isImg && (
               <img
-                src={isLiked ? "/images/heart-liked.png" : "/images/heart.png"}
-                className="w-6 h-6 mr-1"
+                src={postFile}
+                className=" w-full border border-gray-200 rounded-md"
               />
-              <p>{likeAmount}</p>
+            )}
+            {postFile && isVideo && (
+              <VideoThumbnail
+                videoSrc={postFile}
+                postId={id}
+                username={username}
+                type={"status"}
+              />
+            )}
+            <div className="flex text-gray-500 select-none py-3 text-[13px]">
+              <p>{dateUpload}</p>
             </div>
-            {/* Share Link */}
-            <ShareLinkComponent />
+            <hr />
+            <div className="flex justify-between mr-10 ml-15 py-2">
+              {/* Comments */}
+              <div
+                className="flex select-none cursor-pointer"
+                data-tooltip-target={tooltipCommentId}
+              >
+                <img src="/images/comment.png" className="w-6 h-6 mr-1" />
+                <p>{post?.commentCount}</p>
+              </div>
+              {/* Likes */}
+              <div
+                className="flex select-none cursor-pointer"
+                data-tooltip-target={tooltipLikeId}
+                onClick={handleLike}
+              >
+                <img
+                  src={
+                    isLiked ? "/images/heart-liked.png" : "/images/heart.png"
+                  }
+                  className="w-6 h-6 mr-1"
+                />
+                <p>{likeAmount}</p>
+              </div>
+              {/* Share Link */}
+              <ShareLinkComponent />
+            </div>
+            <hr />
+
+            {/*  Reply or Comment */}
+            <ReplyComponent type={"Post"} commentedOnId={id} />
+
+            {comments.map((comment) => (
+              <CommentComponent Comment={comment} key={comment._id} />
+            ))}
+            <hr className="pb-2" />
           </div>
-          <hr />
-
-          {/*  Reply or Comment */}
-          <ReplyComponent type={"Post"} commentedOnId={id} />
-
-          {comments.map((comment) => (
-            <CommentComponent Comment={comment} key={comment._id} />
-          ))}
-          <hr className="pb-2" />
         </div>
-      </div>
+      )}
 
       {/* Tooltip for Comment */}
       <div
