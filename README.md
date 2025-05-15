@@ -27,12 +27,10 @@
 ### 1. Clone the Repository
 
 ```bash
-cd your_folder_here
+cd %PATH%
 git clone https://github.com/Galaxyrama/Fishbook.git
 cd fishbook
-code .
 ```
-Once on the Visual Studio Code, press Ctrl + Shift + ` keys to open the terminal or just continue where you are.
 
 ### 2. Set up the Backend
 
